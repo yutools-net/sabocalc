@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YUTOOLS ❘ さぼカリ (SaboCalc) - 便利な多機能計算ツール</title>
+    
+    <!-- OGP (Open Graph Protocol) 設定 -->
+    <meta property="og:title" content="さぼカリ (SaboCalc)" />
+    <meta property="og:description" content="日常の「ちょっと面倒な計算」を解決する、20種類の便利なWeb計算ツール集です。すべて無料で利用できます。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://yutools.net/sabocalc/" /> 
+    <meta property="og:image" content="https://yutools.net/sabocalc/images/sabocalc-icon.webp" /> <!-- ★OGP画像のURLに書き換えてください★ -->
+    <meta property="og:site_name" content="YUTOOLS" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- 外部ライブラリとCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/site-header.css"> <!-- サイト共通ヘッダースタイル -->
+    <script src="/js/header.js" async></script>
+
+    <style>
+                        /* ▼▼▼ アイコン用のCSS（レスポンシブ対応版） ▼▼▼ */
+        /* PC表示 (デフォルト) */
+        .header-icon {
+            width: auto;
+            height: 8rem; /* PCでの基本サイズ (text-4xlに合わせる) */
+            margin-right: 1rem;
+        }
+
+        /* h1をFlexコンテナにして、中の要素を中央揃えにする */
+        h1.title-with-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* モバイル表示 (画面幅が768px以下の場合) */
+        @media (max-width: 768px) {
+            .header-icon {
+                height: 3.5rem; /* スマホでのサイズ (text-3xlに合わせる) */
+                margin-right: 0.5rem;
+            }
+        }
+        /* ▲▲▲ ここまで ▲▲▲ */
+        :root {
+            --primary-color: #007bff; --secondary-color: #6c757d; --success-color: #28a745; --danger-color: #dc3545;
+            --warning-color: #ffc107; --info-color: #17a2b8; --light-color: #f8f9fa; --dark-color: #343a40;
+            --border-color: #dee2e6; --body-bg: #f0f2f5;
+        }
+        body {
+            font-family: 'Noto Sans JP', 'Inter', sans-serif;
+            background-color: var(--body-bg);
+        }
+        .screen { transition: opacity 0.3s ease-in-out; }
+        .screen.hidden { position: absolute; top: 0; left: 0; right: 0; opacity: 0; pointer-events: none; }
+        input[type=number] { -moz-appearance: textfield; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        
+        /* アコーディオン用スタイル */
+        .accordion-guide { margin-bottom: 2rem; border: 1px solid var(--border-color); border-radius: 12px; background-color: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .accordion-item { border-bottom: 1px solid var(--border-color); }
+        .accordion-item:last-child { border-bottom: none; }
+        .accordion-header { width: 100%; background-color: #fff; border: none; padding: 1rem 1.5rem; text-align: left; font-size: 1.1rem; font-weight: 500; color: var(--primary-color); cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 12px; }
+        .accordion-header:hover { background-color: #f8f9fa; }
+        .accordion-icon { font-size: 1.2rem; transition: transform 0.3s ease; }
+        .accordion-header.active .accordion-icon { transform: rotate(45deg); }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; background-color: white; }
+        .accordion-content-inner { padding: 0 1.5rem 1.5rem; font-size: 14px; line-height: 1.7; color: #495057; }
+        .accordion-content-inner ul { list-style-position: inside; padding-left: 10px; margin-top: 10px; margin-bottom: 10px;}
+        .accordion-content-inner code { background-color: #e9ecef; padding: 2px 5px; border-radius: 4px; font-family: 'Menlo', 'Consolas', 'Courier New', monospace; }
+    </style>
+</head>
+<body class="flex flex-col items-center min-h-screen">
+
+    <div id="header-placeholder" class="w-full"></div>
+
+    <main class="relative w-full max-w-5xl p-4 flex-grow">
+        <section class="accordion-guide">
+            <div class="accordion-item">
+                <button class="accordion-header"><span>✨ さぼカリとは？</span><span class="accordion-icon">+</span></button>
+                <div class="accordion-content">
+                    <div class="accordion-content-inner">
+                        <p>「さぼカリ」は、日常やビジネスで発生する「地味に面倒な計算」を解決するための多機能Web計算ツール集です。電卓やExcelを立ち上げるまでもないけれど、ちょっと計算したい…そんな「かゆいところに手が届く」20種類のツールを無料で提供します。</p>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <button class="accordion-header"><span>📖 使い方</span><span class="accordion-icon">+</span></button>
+                <div class="accordion-content">
+                    <div class="accordion-content-inner">
+                        <p>使い方はとても簡単です。</p>
+                        <ul>
+                            <li>下のツール一覧から、使いたい計算機能をクリックします。</li>
+                            <li>専用の計算画面が表示されるので、数値を入力するだけでリアルタイムに結果が表示されます。</li>
+                            <li>左上の矢印ボタンで、いつでもツール一覧に戻れます。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <button class="accordion-header"><span>🔒 プライバシーについて</span><span class="accordion-icon">+</span></button>
+                <div class="accordion-content">
+                    <div class="accordion-content-inner">
+                        <p>このツールは、すべての処理をあなたのブラウザ内で完結させます。家計簿などの入力データも、ご利用のブラウザ内にのみ保存されます。入力されたデータが開発者を含む外部のサーバーに送信・保存されることは一切ありませんので、安心してご利用ください。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Screen 1: Feature Selection -->
+        <div id="selectionScreen" class="screen w-full">
+            <div class="bg-white rounded-2xl shadow-xl p-6 md:p-10 space-y-8">
+                <header class="text-center">
+                    <h1 class="title-with-icon text-3xl md:text-4xl font-bold text-slate-700"><img src="/sabocalc/images/sabocalc-icon.webp" alt="SaboCalc icon" class="header-icon">さぼカリ (SaboCalc)</h1>
+                    <p class="mt-3 text-slate-500">何を計算しますか？</p>
+                </header>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div data-screen="list" class="calc-btn bg-blue-50 p-6 rounded-lg shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer"><h2 class="text-xl font-bold text-blue-800">リストの数字を集計</h2><p class="mt-2 text-blue-700">合計・平均・最大・最小などを一括計算します。</p></div>
+                    <div data-screen="percent" class="calc-btn bg-green-50 p-6 rounded-lg shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer"><h2 class="text-xl font-bold text-green-800">パーセント計算</h2><p class="mt-2 text-green-700">割合や増減率などを簡単に計算します。</p></div>
+                    <div data-screen="discount" class="calc-btn bg-purple-50 p-6 rounded-lg shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer"><h2 class="text-xl font-bold text-purple-800">割引計算</h2><p class="mt-2 text-purple-700">「〇% OFF」や「〇円引き」を計算します。</p></div>
+                    <div data-screen="dutchTreat" class="calc-btn bg-orange-50 p-6 rounded-lg shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer"><h2 class="text-xl font-bold text-orange-800">割り勘計算</h2><p class="mt-2 text-orange-700">男女差をつけた飲み会の計算も簡単に行えます。</p></div>
+                    <div data-screen="wage" class="calc-btn bg-teal-50 p-6 rounded-lg shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer"><h2 class="text-xl font-bold text-teal-800">時給計算</h2><p class="mt-2 text-teal-700">深夜・残業代を含めた給与を計算します。</p></div>
+                    <div data-screen="date" class="calc-btn bg-sky-50 p-6 rounded-lg shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer"><h2 class="text-xl font-bold text-sky-800">日付計算</h2><p class="mt-2 text-sky-700">「N日後はいつ？」や「何日間ある？」を計算します。</p></div>
+                    <div data-screen="time" class="calc-btn bg-cyan-50 p-6 rounded-lg shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer"><h2 class="text-xl font-bold text-cyan-800">時間計算</h2><p class="mt-2 text-cyan-700">作業時間や時間の差を計算します。</p></div>
+                    <div data-screen="kanjiUnit" class="calc-btn bg-rose-50 p-6 rounded-lg shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer"><h2 class="text-xl font-bold text-rose-800">漢字単位計算</h2><p class="mt-2 text-rose-700">「1億 + 2500万」などを計算・変換します。</p></div>
+                    <div data-screen="ratio" class="calc-btn bg-indigo-50 p-6 rounded-lg shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer"><h2 class="text-xl font-bold text-indigo-800">比率計算</h2><p class="mt-2 text-indigo-700">「A:B = C:?」や比率の単純化を計算します。</p></div>
+                    <div data-screen="tax" class="calc-btn bg-fuchsia-50 p-6 rounded-lg shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer"><h2 class="text-xl font-bold text-fuchsia-800">税計算</h2><p class="mt-2 text-fuchsia-700">10%と8%が混在する税計算を行います。</p></div>
+                    <div data-screen="loan" class="calc-btn bg-slate-200 p-6 rounded-lg shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer"><h2 class="text-xl font-bold text-slate-800">ローン計算</h2><p class="mt-2 text-slate-700">住宅ローンなどの毎月の返済額を計算します。</p></div>
+                    <div data-screen="unitConv" class="calc-btn bg-lime-50 p-6 rounded-lg shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer"><h2 class="text-xl font-bold text-lime-800">単位変換</h2><p class="mt-2 text-lime-700">長さ、重さ、面積、データ量を変換します。</p></div>
+                    <div data-screen="charCount" class="calc-btn bg-yellow-50 p-6 rounded-lg shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer"><h2 class="text-xl font-bold text-yellow-800">文字数カウント</h2><p class="mt-2 text-yellow-700">レポートやSNS投稿の文字数を確認します。</p></div>
+                    <div data-screen="prob" class="calc-btn bg-pink-50 p-6 rounded-lg shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer"><h2 class="text-xl font-bold text-pink-800">確率・期待値計算</h2><p class="mt-2 text-pink-700">ガチャ、期待値、反復試行の確率を計算します。</p></div>
+                    <div data-screen="kakeibo" class="calc-btn bg-emerald-50 p-6 rounded-lg shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer"><h2 class="text-xl font-bold text-emerald-800">家計簿 (タグ付き計算)</h2><p class="mt-2 text-emerald-700">タグで支出を管理し、グラフで可視化します。</p></div>
+                    <div data-screen="grouping" class="calc-btn bg-cyan-50 p-6 rounded-lg shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer"><h2 class="text-xl font-bold text-cyan-800">グループ分け計算</h2><p class="mt-2 text-cyan-700">メンバーリストからランダムにチーム分けします。</p></div>
+                    <div data-screen="recipe" class="calc-btn bg-red-50 p-6 rounded-lg shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer"><h2 class="text-xl font-bold text-red-800">レシピ倍量計算</h2><p class="mt-2 text-red-700">料理レシピの分量を人数に合わせて変換します。</p></div>
+                    <div data-screen="health" class="calc-btn bg-violet-50 p-6 rounded-lg shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer"><h2 class="text-xl font-bold text-violet-800">BMI・基礎代謝計算</h2><p class="mt-2 text-violet-700">手軽な健康チェックと目標設定に役立ちます。</p></div>
+                    <div data-screen="breakeven" class="calc-btn bg-stone-50 p-6 rounded-lg shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer"><h2 class="text-xl font-bold text-stone-800">損益分岐点計算</h2><p class="mt-2 text-stone-700">ビジネスや副業の必須知識、黒字ラインを計算します。</p></div>
+                    <div data-screen="cycle" class="calc-btn bg-amber-50 p-6 rounded-lg shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer"><h2 class="text-xl font-bold text-amber-800">周期計算 (次の〇〇はいつ？)</h2><p class="mt-2 text-amber-700">ゴミの日や習い事など、定期的な予定を計算します。</p></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- All other screens are lazily populated -->
+        <div id="listScreen" class="screen hidden"></div><div id="percentScreen" class="screen hidden"></div><div id="discountScreen" class="screen hidden"></div><div id="dutchTreatScreen" class="screen hidden"></div><div id="wageScreen" class="screen hidden"></div><div id="dateScreen" class="screen hidden"></div><div id="timeScreen" class="screen hidden"></div><div id="kanjiUnitScreen" class="screen hidden"></div><div id="ratioScreen" class="screen hidden"></div><div id="taxScreen" class="screen hidden"></div><div id="loanScreen" class="screen hidden"></div><div id="unitConvScreen" class="screen hidden"></div><div id="charCountScreen" class="screen hidden"></div><div id="probScreen" class="screen hidden"></div><div id="kakeiboScreen" class="screen hidden"></div>
+        <div id="groupingScreen" class="screen hidden"></div><div id="recipeScreen" class="screen hidden"></div><div id="healthScreen" class="screen hidden"></div>
+        <div id="breakevenScreen" class="screen hidden"></div><div id="cycleScreen" class="screen hidden"></div>
+    </main>
+
+    <!-- Edit Modal for Kakeibo -->
+    <div id="kakeiboEditModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md space-y-4">
+            <h2 class="text-xl font-bold text-slate-700">支出の編集</h2>
+            <form id="kakeiboEditForm">
+                <input type="hidden" id="kakeibo_edit_id">
+                <div><label for="kakeibo_edit_date" class="block text-sm font-medium text-slate-600">日付</label><input type="date" id="kakeibo_edit_date" class="w-full mt-1 p-2 rounded border border-slate-300"></div>
+                <div class="mt-4"><label for="kakeibo_edit_item" class="block text-sm font-medium text-slate-600">項目</label><input type="text" id="kakeibo_edit_item" class="w-full mt-1 p-2 rounded border border-slate-300"></div>
+                <div class="mt-4"><label for="kakeibo_edit_amount" class="block text-sm font-medium text-slate-600">金額</label><input type="number" id="kakeibo_edit_amount" class="w-full mt-1 p-2 rounded border border-slate-300"></div>
+                <div class="mt-4"><label for="kakeibo_edit_tags" class="block text-sm font-medium text-slate-600">タグ (スペース区切り)</label><input type="text" id="kakeibo_edit_tags" class="w-full mt-1 p-2 rounded border border-slate-300"></div>
+                <div class="mt-6 flex justify-end gap-4">
+                    <button type="button" id="kakeibo_edit_cancel" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300">キャンセル</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-500 text-white font-bold rounded-lg hover:bg-emerald-600">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="footer-placeholder" class="w-full"></div>
+
+    <script src="/js/header.js" async></script>
+    <script src="/js/common.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const screens = {
+                selection: document.getElementById('selectionScreen'), list: document.getElementById('listScreen'), percent: document.getElementById('percentScreen'), discount: document.getElementById('discountScreen'), dutchTreat: document.getElementById('dutchTreatScreen'), wage: document.getElementById('wageScreen'), date: document.getElementById('dateScreen'), time: document.getElementById('timeScreen'), kanjiUnit: document.getElementById('kanjiUnitScreen'), ratio: document.getElementById('ratioScreen'), tax: document.getElementById('taxScreen'), loan: document.getElementById('loanScreen'), unitConv: document.getElementById('unitConvScreen'), charCount: document.getElementById('charCountScreen'), prob: document.getElementById('probScreen'), kakeibo: document.getElementById('kakeiboScreen'),
+                grouping: document.getElementById('groupingScreen'), recipe: document.getElementById('recipeScreen'), health: document.getElementById('healthScreen'), breakeven: document.getElementById('breakevenScreen'), cycle: document.getElementById('cycleScreen')
+            };
+
+            const templates = {
+                list: `<main class="bg-white rounded-2xl shadow-xl p-6 md:p-10 space-y-8"><header class="flex justify-between items-center"><button class="backButton text-slate-500 hover:text-slate-800"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button><h1 class="text-2xl font-bold text-slate-700">リストの数字を集計</h1><div class="w-6"></div></header><div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><div class="flex flex-col"><label for="numbersInput" class="mb-2 font-semibold text-slate-600">計算したい数字を入力</label><textarea id="numbersInput" class="w-full h-80 p-4 border-2 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="ここに数字を貼り付け... (改行、カンマ、スペース区切りに対応)"></textarea></div><div class="space-y-4"><h2 class="font-semibold text-slate-600">計算結果</h2><div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div class="bg-blue-50 p-5 rounded-lg shadow-sm"><h3 class="text-sm font-semibold text-blue-800">合計</h3><p id="sumResult" class="text-3xl font-bold text-blue-600 mt-1">0</p></div><div class="bg-green-50 p-5 rounded-lg shadow-sm"><h3 class="text-sm font-semibold text-green-800">平均</h3><p id="averageResult" class="text-3xl font-bold text-green-600 mt-1">0</p></div><div class="bg-indigo-50 p-5 rounded-lg shadow-sm"><h3 class="text-sm font-semibold text-indigo-800">個数</h3><p id="countResult" class="text-3xl font-bold text-indigo-600 mt-1">0</p></div><div class="bg-amber-50 p-5 rounded-lg shadow-sm"><h3 class="text-sm font-semibold text-amber-800">最大値</h3><p id="maxResult" class="text-3xl font-bold text-amber-600 mt-1">-</p></div><div class="bg-rose-50 p-5 rounded-lg shadow-sm"><h3 class="text-sm font-semibold text-rose-800">最小値</h3><p id="minResult" class="text-3xl font-bold text-rose-600 mt-1">-</p></div></div><div class="pt-4"><button id="clearButton" class="w-full bg-slate-500 hover:bg-slate-600 text-white font-bold py-3 px-4 rounded-lg">クリア</button></div></div></div></main>`,
+                percent: `<main class="bg-white rounded-2xl shadow-xl p-6 md:p-10 space-y-8"><header class="flex justify-between items-center"><button class="backButton text-slate-500 hover:text-slate-800"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button><h1 class="text-2xl font-bold text-slate-700">パーセント計算</h1><div class="w-6"></div></header><div class="space-y-6"><div class="bg-slate-50 p-5 rounded-lg"><h3 class="font-semibold text-slate-800 mb-3">X は Y の何 %？</h3><div class="flex items-center gap-2 flex-wrap"><input id="p_val1" type="number" placeholder="X" class="percent-input w-24 p-2 rounded border"><span class="text-slate-600">は</span><input id="p_val2" type="number" placeholder="Y" class="percent-input w-24 p-2 rounded border"><span class="text-slate-600">の</span><p id="p_res1" class="font-bold text-green-600 text-xl ml-auto">0 %</p></div></div><div class="bg-slate-50 p-5 rounded-lg"><h3 class="font-semibold text-slate-800 mb-3">Y の X % は？</h3><div class="flex items-center gap-2 flex-wrap"><input id="p_val3" type="number" placeholder="Y" class="percent-input w-24 p-2 rounded border"><span class="text-slate-600">の</span><input id="p_val4" type="number" placeholder="X" class="percent-input w-24 p-2 rounded border"><span class="text-slate-600">% は</span><p id="p_res2" class="font-bold text-green-600 text-xl ml-auto">0</p></div></div><div class="bg-slate-50 p-5 rounded-lg"><h3 class="font-semibold text-slate-800 mb-3">X から Y への増減率は？</h3><div class="flex items-center gap-2 flex-wrap"><input id="p_val5" type="number" placeholder="元の値" class="percent-input w-32 p-2 rounded border"><span class="text-slate-600">から</span><input id="p_val6" type="number" placeholder="今の値" class="percent-input w-32 p-2 rounded border"><span class="text-slate-600">へ</span><p id="p_res3" class="font-bold text-green-600 text-xl ml-auto">-</p></div></div></div></main>`,
+                discount: `<main class="bg-white rounded-2xl shadow-xl p-6 md:p-10 space-y-8"><header class="flex justify-between items-center"><button class="backButton text-slate-500 hover:text-slate-800"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button><h1 class="text-2xl font-bold text-slate-700">割引計算</h1><div class="w-6"></div></header><div class="bg-slate-50 p-6 rounded-lg space-y-6"><div><label for="dc_originalPrice" class="block mb-2 font-semibold text-slate-600">元の価格 (円)</label><input id="dc_originalPrice" type="text" inputmode="numeric" placeholder="例: 10,000" class="discount-input text-lg w-full p-2 rounded border focus:ring-2 focus:ring-purple-500"></div><div><label for="dc_discountValue" class="block mb-2 font-semibold text-slate-600">割引</label><div class="flex items-center"><input id="dc_discountValue" type="number" placeholder="例: 20" class="discount-input text-lg w-full p-2 rounded-l border focus:ring-2 focus:ring-purple-500"><div class="flex"><button id="dc_type_percent" class="toggle-btn w-16 py-2 px-4 font-bold">%</button><button id="dc_type_amount" class="toggle-btn w-16 py-2 px-4 font-bold rounded-r-md">円</button></div></div></div><div class="pt-4 border-t border-slate-200 space-y-4"><div class="flex justify-between items-baseline"><span class="text-lg font-semibold text-slate-700">割引後の価格:</span><p class="text-4xl font-bold text-purple-600"><span id="dc_finalPrice">0</span> 円</p></div><div class="flex justify-between items-baseline text-slate-500"><span>割引額:</span><p><span id="dc_savedAmount">0</span> 円</p></div></div></div></main>`,
+                dutchTreat: `<main class="bg-white rounded-2xl shadow-xl p-6 md:p-10 space-y-8"><header class="flex justify-between items-center"><button class="backButton text-slate-500 hover:text-slate-800"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button><h1 class="text-2xl font-bold text-slate-700">割り勘計算</h1><div class="w-6"></div></header><div class="bg-slate-50 p-6 rounded-lg space-y-6"><div><label for="dt_totalAmount" class="block mb-2 font-semibold text-slate-600">合計金額 (円)</label><input id="dt_totalAmount" type="text" inputmode="numeric" placeholder="例: 25000" class="dutch-treat-input text-lg w-full p-2 rounded border border-slate-300 focus:ring-2 focus:ring-orange-500"></div><div class="grid grid-cols-2 gap-4"><div><label for="dt_menCount" class="block mb-2 font-semibold text-slate-600">グループ1の人数</label><input id="dt_menCount" type="number" placeholder="3" class="dutch-treat-input text-lg w-full p-2 rounded border border-slate-300 focus:ring-2 focus:ring-orange-500"></div><div><label for="dt_womenCount" class="block mb-2 font-semibold text-slate-600">グループ2の人数</label><input id="dt_womenCount" type="number" placeholder="2" class="dutch-treat-input text-lg w-full p-2 rounded border border-slate-300 focus:ring-2 focus:ring-orange-500"></div></div><div><label for="dt_diffAmount" class="block mb-2 font-semibold text-slate-600">グループ1が1人あたり多く払う金額 (円)</label><input id="dt_diffAmount" type="text" inputmode="numeric" placeholder="例: 1000" class="dutch-treat-input text-lg w-full p-2 rounded border border-slate-300 focus:ring-2 focus:ring-orange-500"></div><div class="pt-4 border-t border-slate-200 space-y-4"><div class="flex justify-between items-baseline"><span class="text-lg font-semibold text-blue-700">グループ1 (1人あたり):</span><p class="text-3xl font-bold text-blue-600"><span id="dt_malePayment">0</span> 円</p></div><div class="flex justify-between items-baseline"><span class="text-lg font-semibold text-pink-700">グループ2 (1人あたり):</span><p class="text-3xl font-bold text-pink-500"><span id="dt_femalePayment">0</span> 円</p></div><div class="flex justify-between items-baseline text-slate-500"><span>集金額の合計 / 端数 (おつり・不足):</span><p><span id="dt_collectedTotal">0</span> 円 / <span id="dt_remainder">0</span> 円</p></div></div></div></main>`,
+                wage: `<main class="bg-white rounded-2xl shadow-xl p-6 md:p-10 space-y-8"><header class="flex justify-between items-center"><button class="backButton text-slate-500 hover:text-slate-800"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button><h1 class="text-2xl font-bold text-slate-700">時給計算</h1><div class="w-6"></div></header><div class="bg-slate-50 p-6 rounded-lg space-y-6"><div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4"><div><label for="wc_startTime" class="block mb-2 font-semibold text-slate-600">開始時刻</label><input id="wc_startTime" type="time" value="09:00" class="wage-input text-lg w-full p-2 rounded border focus:ring-2 focus:ring-teal-500"></div><div><label for="wc_endTime" class="block mb-2 font-semibold text-slate-600">終了時刻</label><input id="wc_endTime" type="time" value="18:00" class="wage-input text-lg w-full p-2 rounded border focus:ring-2 focus:ring-teal-500"></div><div><label for="wc_breakMinutes" class="block mb-2 font-semibold text-slate-600">休憩時間 (分)</label><input id="wc_breakMinutes" type="number" value="60" placeholder="60" class="wage-input text-lg w-full p-2 rounded border focus:ring-2 focus:ring-teal-500"></div><div><label for="wc_hourlyWage" class="block mb-2 font-semibold text-slate-600">基本時給 (円)</label><input id="wc_hourlyWage" type="text" inputmode="numeric" value="1200" placeholder="1200" class="wage-input text-lg w-full p-2 rounded border focus:ring-2 focus:ring-teal-500"></div></div><div class="pt-4 border-t border-slate-200"><h3 class="font-semibold text-slate-800 mb-2">深夜・残業手当の設定</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4"><div><label class="block mb-2 font-semibold text-slate-600">深夜時間帯</label><div class="flex items-center gap-2"><input id="wc_lateStart" type="time" value="22:00" class="wage-input w-full p-2 rounded border"><span class="font-bold">-</span><input id="wc_lateEnd" type="time" value="05:00" class="wage-input w-full p-2 rounded border"></div></div><div><label class="block mb-2 font-semibold text-slate-600">割増率</label><div class="flex items-center gap-2"><span class="text-sm">深夜</span><input id="wc_lateMultiplier" type="number" step="0.01" value="1.25" class="wage-input w-20 p-2 rounded border"><span class="text-sm">残業</span><input id="wc_overtimeMultiplier" type="number" step="0.01" value="1.25" class="wage-input w-20 p-2 rounded border"></div></div></div><p class="text-xs text-slate-500 mt-2">法定労働時間(8時間/日)を超えた分が残業、指定時間帯が深夜労働として計算されます。</p></div><div class="pt-4 border-t-2 border-slate-300 space-y-4 mt-6"><div class="flex justify-between items-baseline"><span class="text-base font-semibold text-slate-700">総勤務時間:</span><p class="text-2xl font-bold text-teal-600" id="wc_workDuration">0時間 0分</p></div><div class="text-sm space-y-2 text-slate-500"><div class="flex justify-between items-baseline"><span class="font-semibold">通常勤務:</span><p><span id="wc_regularDuration">0時間 0分</span> (<span id="wc_regularPay">0</span> 円)</p></div><div class="flex justify-between items-baseline"><span class="font-semibold">残業:</span><p><span id="wc_overtimeDuration">0時間 0分</span> (<span id="wc_overtimePay">0</span> 円)</p></div><div class="flex justify-between items-baseline"><span class="font-semibold">深夜勤務:</span><p><span id="wc_lateDuration">0時間 0分</span> (<span id="wc_latePay">0</span> 円)</p></div></div><div class="flex justify-between items-baseline border-t border-slate-200 pt-4"><span class="text-lg font-semibold text-slate-700">合計給与:</span><p class="text-4xl font-bold text-teal-600"><span id="wc_totalPay">0</span> 円</p></div></div></div></main>`,
+                date: `<main class="bg-white rounded-2xl shadow-xl p-6 md:p-10 space-y-8"><header class="flex justify-between items-center"><button class="backButton text-slate-500 hover:text-slate-800"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button><h1 class="text-2xl font-bold text-slate-700">日付計算</h1><div class="w-6"></div></header><div class="space-y-6"><div class="bg-slate-50 p-6 rounded-lg"><h3 class="font-semibold text-slate-800 mb-4">N日後・N日前の日付を計算</h3><div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end"><div><label for="date_start" class="block text-sm font-medium text-slate-600">基準日</label><input type="date" id="date_start" class="date-input mt-1 w-full p-2 rounded border border-slate-300 focus:ring-2 focus:ring-sky-500"></div><div class="flex items-center gap-2"><input type="number" id="date_days" value="30" class="date-input w-20 p-2 text-center rounded border border-slate-300 focus:ring-2 focus:ring-sky-500"><select id="date_operator" class="date-input p-2 rounded border bg-white border-slate-300 focus:ring-2 focus:ring-sky-500"><option value="after">日後</option><option value="before">日前</option></select></div><div class="text-right"><p class="text-sm text-slate-500">計算結果</p><p id="date_result" class="font-bold text-sky-600 text-2xl">-</p></div></div></div><div class="bg-slate-50 p-6 rounded-lg"><h3 class="font-semibold text-slate-800 mb-4">期間の日数を計算</h3><div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center"><div><label for="days_start" class="block text-sm font-medium text-slate-600">開始日</label><input type="date" id="days_start" class="days-input mt-1 w-full p-2 rounded border border-slate-300 focus:ring-2 focus:ring-sky-500"></div><div class="text-center text-slate-500 font-bold">〜</div><div><label for="days_end" class="block text-sm font-medium text-slate-600">終了日</label><input type="date" id="days_end" class="days-input mt-1 w-full p-2 rounded border border-slate-300 focus:ring-2 focus:ring-sky-500"></div></div><div class="mt-4 pt-4 border-t border-slate-200 text-right"><p class="text-sm text-slate-500">期間の日数 (終了日を含む)</p><p id="days_result" class="font-bold text-sky-600 text-3xl">-</p></div></div></div></main>`,
+                time: `<main class="bg-white rounded-2xl shadow-xl p-6 md:p-10 space-y-8"><header class="flex justify-between items-center"><button class="backButton text-slate-500 hover:text-slate-800"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button><h1 class="text-2xl font-bold text-slate-700">時間計算</h1><div class="w-6"></div></header><div class="space-y-6"><div class="bg-slate-50 p-6 rounded-lg"><h3 class="font-semibold text-slate-800 mb-4">時間の差を計算</h3><div class="flex items-center justify-center gap-2 flex-wrap text-2xl"><input type="time" id="time_diff_start" value="09:00" class="time-diff-input p-2 rounded border border-slate-300 focus:ring-2 focus:ring-cyan-500"><span class="text-slate-500">〜</span><input type="time" id="time_diff_end" value="17:30" class="time-diff-input p-2 rounded border border-slate-300 focus:ring-2 focus:ring-cyan-500"><span class="mx-2 text-cyan-600 font-bold">→</span><span id="time_diff_result" class="font-bold text-cyan-600">?時間 ?分</span></div></div><div class="bg-slate-50 p-6 rounded-lg"><h3 class="font-semibold text-slate-800 mb-4">時間の加算・減算</h3><div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center"><div class="flex items-center gap-2 text-xl"><input type="time" id="time_calc_base" value="10:00" class="time-calc-input p-2 rounded border border-slate-300 focus:ring-2 focus:ring-cyan-500"><span>の</span></div><div class="flex items-center gap-2 text-xl"><input type="number" id="time_calc_hours" value="1" class="time-calc-input w-16 p-2 text-center rounded border border-slate-300 focus:ring-2 focus:ring-cyan-500"><span>時間</span><input type="number" id="time_calc_minutes" value="30" class="time-calc-input w-16 p-2 text-center rounded border border-slate-300 focus:ring-2 focus:ring-cyan-500"><span>分</span><select id="time_calc_operator" class="time-calc-input p-2 rounded border bg-white border-slate-300 focus:ring-2 focus:ring-cyan-500"><option value="after">後</option><option value="before">前</option></select></div></div><div class="mt-4 pt-4 border-t border-slate-200 text-right"><p class="text-sm text-slate-500">計算結果</p><p id="time_calc_result" class="font-bold text-cyan-600 text-3xl">-</p></div></div></div></main>`,
+                kanjiUnit: `<main class="bg-white rounded-2xl shadow-xl p-6 md:p-10 space-y-8">
+                    <header class="flex justify-between items-center">
+                        <button class="backButton text-slate-500 hover:text-slate-800"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
+                        <h1 class="text-2xl font-bold text-slate-700">漢字単位計算</h1>
+                        <button id="ku_reset" class="text-sm text-rose-500 hover:text-rose-700 font-semibold">リセット</button>
+                    </header>
+                    <div class="bg-slate-50 p-6 rounded-lg space-y-4">
+                        <div id="ku_rows_container" class="space-y-3"></div>
+                        <button id="ku_add_row" class="w-full text-sm py-2 px-4 bg-rose-100 text-rose-700 font-semibold rounded-lg hover:bg-rose-200 transition-colors">+ 行を追加</button>
+                        <div class="pt-4 border-t-2 border-rose-300 space-y-4 mt-4">
+                            <div><p class="text-sm text-slate-500">計算結果 (数字)</p><p id="ku_result_number" class="font-bold text-rose-600 text-3xl break-all">0</p></div>
+                            <div><p class="text-sm text-slate-500">計算結果 (漢字単位)</p><p id="ku_result_kanji" class="font-bold text-rose-600 text-3xl break-all">0</p></div>
+                        </div>
+                    </div>
+                </main>`,
+                ratio: `<main class="bg-white rounded-2xl shadow-xl p-6 md:p-10 space-y-8"><header class="flex justify-between items-center"><button class="backButton text-slate-500 hover:text-slate-800"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button><h1 class="text-2xl font-bold text-slate-700">比率計算</h1><div class="w-6"></div></header><div class="space-y-6"><div class="bg-slate-50 p-6 rounded-lg"><h3 class="font-semibold text-slate-800 mb-4">比率の計算 (A : B = C : X)</h3><div class="flex items-center justify-center gap-2 flex-wrap text-2xl"><input type="number" id="ratio_a" placeholder="A" class="ratio-x-input w-24 p-2 text-center rounded border border-slate-300 focus:ring-2 focus:ring-indigo-500"><span>:</span><input type="number" id="ratio_b" placeholder="B" class="ratio-x-input w-24 p-2 text-center rounded border border-slate-300 focus:ring-2 focus:ring-indigo-500"><span class="mx-2">=</span><input type="number" id="ratio_c" placeholder="C" class="ratio-x-input w-24 p-2 text-center rounded border border-slate-300 focus:ring-2 focus:ring-indigo-500"><span>:</span><span id="ratio_x_result" class="w-24 p-2 font-bold text-indigo-600">X</span></div></div><div class="bg-slate-50 p-6 rounded-lg"><h3 class="font-semibold text-slate-800 mb-4">比率の単純化</h3><div class="flex items-center justify-center gap-2 flex-wrap text-2xl"><input type="number" id="simplify_a" placeholder="1920" class="ratio-simplify-input w-32 p-2 text-center rounded border border-slate-300 focus:ring-2 focus:ring-indigo-500"><span>:</span><input type="number" id="simplify_b" placeholder="1080" class="ratio-simplify-input w-32 p-2 text-center rounded border border-slate-300 focus:ring-2 focus:ring-indigo-500"><span class="mx-2 text-indigo-600 font-bold">→</span><span id="simplify_result" class="font-bold text-indigo-600">? : ?</span></div></div></div></main>`,
+                tax: `<main class="bg-white rounded-2xl shadow-xl p-6 md:p-10 space-y-8"><header class="flex justify-between items-center"><button class="backButton text-slate-500 hover:text-slate-800"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button><h1 class="text-2xl font-bold text-slate-700">税計算</h1><div class="w-6"></div></header><div class="bg-slate-50 p-6 rounded-lg space-y-6"><div><label class="block mb-2 font-semibold text-slate-600">入力する価格の種類</label><div class="flex rounded-md shadow-sm"><button id="tax_type_exclusive" class="tax-type-btn toggle-btn w-full py-2 px-4 font-bold rounded-l-md">税抜</button><button id="tax_type_inclusive" class="tax-type-btn toggle-btn w-full py-2 px-4 font-bold rounded-r-md">税込</button></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label id="tax_10_label" for="tax_10_amount" class="block mb-2 font-semibold text-slate-600">10%対象金額 (税抜)</label><input id="tax_10_amount" type="text" inputmode="numeric" placeholder="例: 10000" class="tax-mixed-input text-lg w-full p-2 rounded border border-slate-300 focus:ring-2 focus:ring-fuchsia-500"></div><div><label id="tax_8_label" for="tax_8_amount" class="block mb-2 font-semibold text-slate-600">8%対象金額 (税抜)</label><input id="tax_8_amount" type="text" inputmode="numeric" placeholder="例: 5000" class="tax-mixed-input text-lg w-full p-2 rounded border border-slate-300 focus:ring-2 focus:ring-fuchsia-500"></div></div><div class="pt-4 border-t border-slate-200 space-y-4"><div class="flex justify-between items-baseline text-slate-600"><span>税抜合計:</span><p><span id="tax_exclusive_total">0</span> 円</p></div><div class="flex justify-between items-baseline text-slate-600"><span>消費税 (10%):</span><p><span id="tax_10_total">0</span> 円</p></div><div class="flex justify-between items-baseline text-slate-600"><span>消費税 (8%):</span><p><span id="tax_8_total">0</span> 円</p></div><div class="flex justify-between items-baseline text-slate-600 font-semibold border-t pt-2 mt-2"><span>消費税合計:</span><p><span id="tax_amount_total">0</span> 円</p></div><div class="flex justify-between items-baseline text-xl font-bold text-fuchsia-800 border-t-2 border-fuchsia-200 pt-4 mt-4"><span>税込合計:</span><p><span id="tax_inclusive_total">0</span> 円</p></div></div></div></main>`,
+                loan: `<main class="bg-white rounded-2xl shadow-xl p-6 md:p-10 space-y-8"><header class="flex justify-between items-center"><button class="backButton text-slate-500 hover:text-slate-800"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button><h1 class="text-2xl font-bold text-slate-700">ローン計算</h1><div class="w-6"></div></header><div class="bg-slate-50 p-6 rounded-lg space-y-6"><div class="grid grid-cols-1 md:grid-cols-3 gap-4"><div><label for="loan_amount" class="block mb-2 font-semibold text-slate-600">借入額 (万円)</label><input id="loan_amount" type="number" value="3000" class="loan-input text-lg w-full p-2 rounded border border-slate-300 focus:ring-2 focus:ring-slate-500"></div><div><label for="loan_rate" class="block mb-2 font-semibold text-slate-600">年利率 (%)</label><input id="loan_rate" type="number" step="0.01" value="1.5" class="loan-input text-lg w-full p-2 rounded border border-slate-300 focus:ring-2 focus:ring-slate-500"></div><div><label for="loan_period" class="block mb-2 font-semibold text-slate-600">返済期間 (年)</label><input id="loan_period" type="number" value="35" class="loan-input text-lg w-full p-2 rounded border border-slate-300 focus:ring-2 focus:ring-slate-500"></div></div><div class="pt-4 border-t border-slate-200 space-y-4"><div class="flex justify-between items-baseline"><span class="text-lg font-semibold text-slate-700">毎月の返済額:</span><p class="text-3xl font-bold text-slate-800"><span id="loan_monthly_payment">0</span> 円</p></div><div class="flex justify-between items-baseline text-slate-600"><span>利息総額:</span><p><span id="loan_total_interest">0</span> 円</p></div><div class="flex justify-between items-baseline text-slate-600"><span>総返済額:</span><p><span id="loan_total_payment">0</span> 円</p></div></div></div></main>`,
+                unitConv: `<main class="bg-white rounded-2xl shadow-xl p-6 md:p-10 space-y-8"><header class="flex justify-between items-center"><button class="backButton text-slate-500 hover:text-slate-800"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button><h1 class="text-2xl font-bold text-slate-700">単位変換</h1><div class="w-6"></div></header><div class="space-y-6"><div class="flex items-center gap-4"><input type="number" id="unit_input_value" value="1" class="text-lg w-full p-2 rounded border border-slate-300 focus:ring-2 focus:ring-lime-500"><select id="unit_input_unit" class="text-lg p-2 rounded border bg-white border-slate-300 focus:ring-2 focus:ring-lime-500"></select></div><div id="unit_results" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div></div></main>`,
+                charCount: `<main class="bg-white rounded-2xl shadow-xl p-6 md:p-10 space-y-8"><header class="flex justify-between items-center"><button class="backButton text-slate-500 hover:text-slate-800"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button><h1 class="text-2xl font-bold text-slate-700">文字数カウント</h1><div class="w-6"></div></header><div><textarea id="char_count_input" class="w-full h-48 p-4 border-2 rounded-lg focus:ring-2 focus:ring-yellow-500" placeholder="ここにテキストを入力..."></textarea></div><div class="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center"><div class="bg-slate-50 p-4 rounded-lg"><h3 class="text-sm font-semibold text-slate-600">文字数 (スペース込)</h3><p id="char_count_with_spaces" class="text-3xl font-bold text-yellow-800 mt-1">0</p></div><div class="bg-slate-50 p-4 rounded-lg"><h3 class="text-sm font-semibold text-slate-600">文字数 (スペース抜)</h3><p id="char_count_without_spaces" class="text-3xl font-bold text-yellow-800 mt-1">0</p></div><div class="bg-slate-50 p-4 rounded-lg"><h3 class="text-sm font-semibold text-slate-600">行数</h3><p id="char_count_lines" class="text-3xl font-bold text-yellow-800 mt-1">0</p></div><div class="bg-slate-50 p-4 rounded-lg"><h3 class="text-sm font-semibold text-slate-600">段落数</h3><p id="char_count_paragraphs" class="text-3xl font-bold text-yellow-800 mt-1">0</p></div></div></main>`,
+                prob: `<main class="bg-white rounded-2xl shadow-xl p-6 md:p-10 space-y-8"><header class="flex justify-between items-center"><button class="backButton text-slate-500 hover:text-slate-800"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button><h1 class="text-2xl font-bold text-slate-700">確率・期待値計算</h1><div class="w-6"></div></header><div class="space-y-6"><div class="bg-slate-50 p-6 rounded-lg"><h3 class="font-semibold text-slate-800 mb-4">ガチャの確率計算</h3><div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end"><div><label for="prob_gacha_rate" class="block text-sm font-medium text-slate-600">当たり確率 (%)</label><input type="number" id="prob_gacha_rate" value="1" step="0.1" class="prob-gacha-input mt-1 w-full p-2 rounded border border-slate-300 focus:ring-2 focus:ring-pink-500"></div><div><label for="prob_gacha_count" class="block text-sm font-medium text-slate-600">引く回数</label><input type="number" id="prob_gacha_count" value="10" class="prob-gacha-input mt-1 w-full p-2 rounded border border-slate-300 focus:ring-2 focus:ring-pink-500"></div><div class="text-right"><p class="text-sm text-slate-500">少なくとも1回当たる確率</p><p id="prob_gacha_result" class="font-bold text-pink-600 text-2xl">-</p></div></div></div><div class="bg-slate-50 p-6 rounded-lg"><h3 class="font-semibold text-slate-800 mb-4">期待値計算</h3><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end"><div><label for="prob_ev_prize" class="block text-sm font-medium text-slate-600">賞金・得られる価値</label><input type="number" id="prob_ev_prize" value="10000" class="prob-ev-input mt-1 w-full p-2 rounded border border-slate-300 focus:ring-2 focus:ring-pink-500"></div><div><label for="prob_ev_rate" class="block text-sm font-medium text-slate-600">当たる確率 (%)</label><input type="number" id="prob_ev_rate" value="5" class="prob-ev-input mt-1 w-full p-2 rounded border border-slate-300 focus:ring-2 focus:ring-pink-500"></div><div><label for="prob_ev_cost" class="block text-sm font-medium text-slate-600">1回の費用</label><input type="number" id="prob_ev_cost" value="300" class="prob-ev-input mt-1 w-full p-2 rounded border border-slate-300 focus:ring-2 focus:ring-pink-500"></div><div class="text-right"><p class="text-sm text-slate-500">期待値</p><p id="prob_ev_result" class="font-bold text-pink-600 text-2xl">-</p></div></div></div><div class="bg-slate-50 p-6 rounded-lg"><h3 class="font-semibold text-slate-800 mb-4">反復試行の確率 (コイン投げなど)</h3><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end"><div><label for="prob_binom_n" class="block text-sm font-medium text-slate-600">試行回数 (n)</label><input type="number" id="prob_binom_n" value="10" class="prob-binom-input mt-1 w-full p-2 rounded border border-slate-300 focus:ring-2 focus:ring-pink-500"></div><div><label for="prob_binom_k" class="block text-sm font-medium text-slate-600">成功する回数 (k)</label><input type="number" id="prob_binom_k" value="3" class="prob-binom-input mt-1 w-full p-2 rounded border border-slate-300 focus:ring-2 focus:ring-pink-500"></div><div><label for="prob_binom_p" class="block text-sm font-medium text-slate-600">1回の成功確率 (%)</label><input type="number" id="prob_binom_p" value="50" class="prob-binom-input mt-1 w-full p-2 rounded border border-slate-300 focus:ring-2 focus:ring-pink-500"></div><div class="text-right"><p class="text-sm text-slate-500">ちょうどk回成功する確率</p><p id="prob_binom_result" class="font-bold text-pink-600 text-2xl">-</p></div></div></div></div></main>`,
+                kakeibo: `<main class="bg-white rounded-2xl shadow-xl p-6 md:p-10 space-y-8"><header class="flex justify-between items-center"><button class="backButton text-slate-500 hover:text-slate-800"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button><h1 class="text-2xl font-bold text-slate-700">家計簿 (タグ付き計算)</h1><div class="w-6"></div></header><div class="grid grid-cols-1 lg:grid-cols-5 gap-8"><div class="lg:col-span-3 space-y-6"><div class="bg-slate-50 p-4 rounded-lg"><h3 class="font-semibold text-slate-800 mb-3">支出の追加</h3><form id="kakeiboForm" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end"><div class="sm:col-span-2 md:col-span-1"><label for="kakeibo_date" class="block text-sm font-medium text-slate-600">日付</label><input type="date" id="kakeibo_date" class="w-full mt-1 p-2 rounded border border-slate-300"></div><div class="sm:col-span-2 md:col-span-1"><label for="kakeibo_item" class="block text-sm font-medium text-slate-600">項目</label><input type="text" id="kakeibo_item" placeholder="ランチ" class="w-full mt-1 p-2 rounded border border-slate-300"></div><div><label for="kakeibo_amount" class="block text-sm font-medium text-slate-600">金額</label><input type="number" id="kakeibo_amount" placeholder="800" class="w-full mt-1 p-2 rounded border border-slate-300"></div><div><button type="submit" class="w-full bg-emerald-500 text-white font-bold p-2 rounded-lg hover:bg-emerald-600 transition-colors">追加</button></div><div class="sm:col-span-2 md:col-span-4"><label for="kakeibo_tags" class="block text-sm font-medium text-slate-600">タグ (スペース区切り)</label><input type="text" id="kakeibo_tags" placeholder="食費 昼食" class="w-full mt-1 p-2 rounded border border-slate-300"></div></form></div><div class="bg-slate-50 p-4 rounded-lg space-y-3"><h3 class="font-semibold text-slate-800">フィルター</h3><div class="grid grid-cols-1 sm:grid-cols-3 gap-3"><div class="sm:col-span-2 grid grid-cols-2 gap-3"><div><label for="filter_start_date" class="block text-xs font-medium text-slate-500">開始日</label><input type="date" id="filter_start_date" class="kakeibo-filter-input w-full p-1.5 text-sm rounded border border-slate-300"></div><div><label for="filter_end_date" class="block text-xs font-medium text-slate-500">終了日</label><input type="date" id="filter_end_date" class="kakeibo-filter-input w-full p-1.5 text-sm rounded border border-slate-300"></div></div><div class="flex items-end"><button id="filter_clear_btn" class="w-full bg-slate-400 text-white text-sm font-bold p-1.5 rounded-lg hover:bg-slate-500 transition-colors">クリア</button></div><div><label for="filter_item" class="block text-xs font-medium text-slate-500">項目</label><select id="filter_item" class="kakeibo-filter-input w-full p-1.5 text-sm rounded border border-slate-300 bg-white"><option value="">すべての項目</option></select></div><div><label for="filter_tag" class="block text-xs font-medium text-slate-500">タグ</label><select id="filter_tag" class="kakeibo-filter-input w-full p-1.5 text-sm rounded border border-slate-300 bg-white"><option value="">すべてのタグ</option></select></div></div></div><div class="h-80 overflow-y-auto bg-white border rounded-lg"><table class="w-full text-sm text-left"><thead><tr class="border-b bg-slate-50 sticky top-0"><th class="py-2 px-2">日付</th><th class="py-2 px-2">項目</th><th class="py-2 px-2 text-right">金額</th><th class="py-2 px-2">タグ</th><th class="py-2 px-2 text-center">操作</th></tr></thead><tbody id="kakeibo_list"></tbody></table></div></div><div class="lg:col-span-2 space-y-6"><div class="bg-slate-50 p-4 rounded-lg"><h3 class="font-semibold text-slate-800 mb-2">集計と分析</h3><div class="flex justify-between items-baseline text-xl font-bold border-b pb-2 mb-2"><span id="kakeibo_total_label">合計金額</span><span id="kakeibo_total_amount" class="text-emerald-600">0 円</span></div><div class="w-full h-64"><canvas id="kakeiboChart"></canvas></div></div><div class="bg-slate-50 p-4 rounded-lg"><h3 class="font-semibold text-slate-800 mb-2">データ管理</h3><button id="kakeibo_export" class="w-full mb-2 bg-blue-500 text-white font-bold p-2 rounded-lg hover:bg-blue-600">エクスポート</button><button id="kakeibo_import_btn" class="w-full bg-green-500 text-white font-bold p-2 rounded-lg hover:bg-green-600">インポート</button><input type="file" id="kakeibo_import_file" class="hidden" accept=".json"></div></div></div></main>`,
+                grouping: `<main class="bg-white rounded-2xl shadow-xl p-6 md:p-10 space-y-8"><header class="flex justify-between items-center"><button class="backButton text-slate-500 hover:text-slate-800"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button><h1 class="text-2xl font-bold text-slate-700">グループ分け計算</h1><div class="w-6"></div></header><div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><div class="space-y-4"><div><label for="grouping_members" class="block mb-2 font-semibold text-slate-600">メンバーリスト (1行に1人)</label><textarea id="grouping_members" class="w-full h-48 p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500" placeholder="山田太郎\n鈴木花子\n佐藤一郎\n..."></textarea></div><div class="space-y-2"><label class="block font-semibold text-slate-600">分け方</label><div class="flex items-center gap-4"><label class="flex items-center gap-2"><input type="radio" name="grouping_method" value="group_count" checked class="h-4 w-4"><span>グループ数で分ける</span></label><label class="flex items-center gap-2"><input type="radio" name="grouping_method" value="member_count" class="h-4 w-4"><span>1グループの人数で分ける</span></label></div><input type="number" id="grouping_value" value="3" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-cyan-500"></div><button id="grouping_execute" class="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-4 rounded-lg">グループ分け実行！</button></div><div class="bg-slate-50 p-4 rounded-lg"><h2 class="font-semibold text-slate-800 mb-3">グループ分け結果</h2><div id="grouping_results" class="space-y-4 h-80 overflow-y-auto"><p class="text-slate-500">ここに結果が表示されます。</p></div></div></div></main>`,
+                recipe: `<main class="bg-white rounded-2xl shadow-xl p-6 md:p-10 space-y-8">
+                    <header class="flex justify-between items-center"><button class="backButton text-slate-500 hover:text-slate-800"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button><h1 class="text-2xl font-bold text-slate-700">レシピ倍量計算</h1><div class="w-6"></div></header>
+                    <div class="flex items-center justify-center gap-4 text-lg"><input type="number" id="recipe_before" value="2" class="recipe-calc-input w-24 p-2 text-center rounded border focus:ring-2 focus:ring-red-500"><span>人分を</span><input type="number" id="recipe_after" value="3" class="recipe-calc-input w-24 p-2 text-center rounded border focus:ring-2 focus:ring-red-500"><span>人分に変換</span></div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div>
+                            <label for="recipe_input" class="mb-2 font-semibold text-slate-600">元のレシピ</label>
+                            <div id="recipe_input_panel" class="bg-slate-50 p-2 rounded-t-lg border-x border-t flex flex-wrap gap-2"></div>
+                            <textarea id="recipe_input" class="recipe-calc-input w-full h-64 p-3 border rounded-b-lg focus:ring-2 focus:ring-red-500" placeholder="上のボタンを押すか、直接入力してください。\n例:\n豚肉 200g\n醤油 大さじ1"></textarea>
+                            <div class="mt-2 flex flex-wrap gap-2">
+                                <button class="recipe-unit-btn px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm">g</button>
+                                <button class="recipe-unit-btn px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm">ml</button>
+                                <button class="recipe-unit-btn px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm">cc</button>
+                                <button class="recipe-unit-btn px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm">個</button>
+                                <button class="recipe-unit-btn px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm">大さじ</button>
+                                <button class="recipe-unit-btn px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm">小さじ</button>
+                            </div>
+                        </div>
+                        <div class="flex flex-col">
+                            <label for="recipe_output" class="mb-2 font-semibold text-slate-600">変換後のレシピ</label>
+                            <textarea id="recipe_output" readonly class="w-full flex-grow p-3 border rounded-lg bg-red-50"></textarea>
+                        </div>
+                    </div>
+                </main>`,
+                health: `<main class="bg-white rounded-2xl shadow-xl p-6 md:p-10 space-y-8"><header class="flex justify-between items-center"><button class="backButton text-slate-500 hover:text-slate-800"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button><h1 class="text-2xl font-bold text-slate-700">BMI・基礎代謝計算</h1><div class="w-6"></div></header><div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><div class="bg-slate-50 p-6 rounded-lg space-y-4"><div><label class="block mb-2 font-semibold text-slate-600">性別</label><div class="flex gap-4"><label class="flex items-center gap-2"><input type="radio" name="health_gender" value="male" checked class="health-input h-4 w-4">男性</label><label class="flex items-center gap-2"><input type="radio" name="health_gender" value="female" class="health-input h-4 w-4">女性</label></div></div><div><label for="health_age" class="block mb-2 font-semibold text-slate-600">年齢</label><input type="number" id="health_age" value="30" class="health-input w-full p-2 border rounded-lg focus:ring-2 focus:ring-violet-500"></div><div><label for="health_height" class="block mb-2 font-semibold text-slate-600">身長 (cm)</label><input type="number" id="health_height" value="170" class="health-input w-full p-2 border rounded-lg focus:ring-2 focus:ring-violet-500"></div><div><label for="health_weight" class="block mb-2 font-semibold text-slate-600">体重 (kg)</label><input type="number" id="health_weight" value="65" class="health-input w-full p-2 border rounded-lg focus:ring-2 focus:ring-violet-500"></div></div><div class="space-y-6"><div class="bg-violet-50 p-6 rounded-lg text-center"><h3 class="text-lg font-semibold text-violet-800">あなたのBMI</h3><p id="health_bmi_result" class="text-5xl font-bold text-violet-600 my-2">0.0</p><p id="health_bmi_judge" class="font-semibold text-violet-700">-</p></div><div class="bg-violet-50 p-6 rounded-lg text-center"><h3 class="text-lg font-semibold text-violet-800">あなたの基礎代謝量</h3><p class="text-4xl font-bold text-violet-600 my-2"><span id="health_bmr_result">0</span> kcal/日</p><p class="text-sm text-slate-500">生命維持に必要な最低限のエネルギー量です</p></div></div></div></main>`,
+                breakeven: `<main class="bg-white rounded-2xl shadow-xl p-6 md:p-10 space-y-8">
+                    <header class="flex justify-between items-center">
+                        <button class="backButton text-slate-500 hover:text-slate-800"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
+                        <h1 class="text-2xl font-bold text-slate-700">損益分岐点計算</h1>
+                        <div class="w-6"></div>
+                    </header>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="bg-slate-50 p-6 rounded-lg space-y-4">
+                            <div>
+                                <label for="be_fixed_cost" class="block mb-2 font-semibold text-slate-600">固定費 (円)</label>
+                                <input id="be_fixed_cost" type="text" inputmode="numeric" placeholder="家賃、人件費など売上に関わらず発生する費用" class="be-input w-full p-2 border rounded-lg">
+                            </div>
+                            <div>
+                                <label for="be_variable_rate" class="block mb-2 font-semibold text-slate-600">変動費率 (%)</label>
+                                <input id="be_variable_rate" type="number" placeholder="売上に対する変動費の割合 (例: 30)" class="be-input w-full p-2 border rounded-lg">
+                                <p class="text-xs text-slate-500 mt-1">※変動費率が不明な場合は、下の項目を入力</p>
+                            </div>
+                            <div class="pt-2 border-t border-slate-200 grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="be_price" class="block text-xs font-semibold text-slate-500 mb-1">売上単価</label>
+                                    <input id="be_price" type="text" inputmode="numeric" class="be-input w-full p-2 border rounded-lg text-sm">
+                                </div>
+                                <div>
+                                    <label for="be_cost" class="block text-xs font-semibold text-slate-500 mb-1">変動費単価</label>
+                                    <input id="be_cost" type="text" inputmode="numeric" class="be-input w-full p-2 border rounded-lg text-sm">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="be_target_profit" class="block mb-2 font-semibold text-slate-600">目標利益 (円)</label>
+                                <input id="be_target_profit" type="text" inputmode="numeric" placeholder="任意" class="be-input w-full p-2 border rounded-lg">
+                            </div>
+                        </div>
+                        <div class="space-y-6">
+                            <div class="bg-stone-100 p-6 rounded-lg text-center">
+                                <h3 class="text-lg font-semibold text-stone-800">損益分岐点売上高</h3>
+                                <p class="text-4xl font-bold text-stone-600 my-2"><span id="be_break_even_sales">0</span> 円</p>
+                                <p class="text-sm text-slate-500">利益が0円（赤字にならない）最低限の売上高</p>
+                            </div>
+                            <div class="bg-stone-100 p-6 rounded-lg text-center">
+                                <h3 class="text-lg font-semibold text-stone-800">目標達成売上高</h3>
+                                <p class="text-4xl font-bold text-stone-600 my-2"><span id="be_target_sales">0</span> 円</p>
+                                <p class="text-sm text-slate-500">設定した目標利益を達成するために必要な売上高</p>
+                            </div>
+                        </div>
+                    </div>
+                </main>`,
+                cycle: `<main class="bg-white rounded-2xl shadow-xl p-6 md:p-10 space-y-8">
+                    <header class="flex justify-between items-center">
+                        <button class="backButton text-slate-500 hover:text-slate-800"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
+                        <h1 class="text-2xl font-bold text-slate-700">周期計算</h1>
+                        <div class="w-6"></div>
+                    </header>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="bg-slate-50 p-6 rounded-lg space-y-4">
+                            <div>
+                                <label for="cy_start_date" class="block mb-2 font-semibold text-slate-600">基準日</label>
+                                <input type="date" id="cy_start_date" class="cy-input w-full p-2 border rounded-lg">
+                            </div>
+                            <div>
+                                <label for="cy_type" class="block mb-2 font-semibold text-slate-600">周期のタイプ</label>
+                                <select id="cy_type" class="cy-input w-full p-2 border rounded-lg bg-white">
+                                    <option value="weekly">毎週</option>
+                                    <option value="monthly_date">毎月 (日付指定)</option>
+                                    <option value="monthly_weekday">毎月 (曜日指定)</option>
+                                    <option value="monthly_business_day">毎月 (第N営業日)</option>
+                                    <option value="daily">N日ごと</option>
+                                </select>
+                            </div>
+                            <div id="cy_options_container" class="space-y-4"></div>
+                            <div>
+                                <label for="cy_count" class="block mb-2 font-semibold text-slate-600">表示する回数</label>
+                                <input type="number" id="cy_count" value="10" class="cy-input w-full p-2 border rounded-lg">
+                            </div>
+                        </div>
+                        <div class="bg-amber-50 p-4 rounded-lg">
+                            <h2 class="font-semibold text-amber-800 mb-3">計算結果</h2>
+                            <ul id="cy_results" class="space-y-2 h-96 overflow-y-auto">
+                                <li class="text-slate-500">ここに結果が表示されます。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </main>`
+             };
+
+            // --- Core App Logic ---
+
+            function showScreen(screenKey) {
+                Object.keys(screens).forEach(key => {
+                    const screen = screens[key];
+                    if (key === screenKey) {
+                        screen.classList.remove('hidden');
+                        setTimeout(() => screen.style.opacity = 1, 10);
+                    } else {
+                        screen.style.opacity = 0;
+                        setTimeout(() => screen.classList.add('hidden'), 300);
+                    }
+                });
+            }
+
+            function populateScreen(key) {
+                const screen = screens[key];
+                if (!screen || screen.innerHTML.trim() !== '') return;
+                if (templates[key]) {
+                    screen.innerHTML = templates[key];
+                }
+            }
+
+            function initCalculator(key) {
+                const screen = screens[key];
+                if (!screen || screen.dataset.initialized === 'true') return;
+
+                const logicInitializer = window.calculatorInitializers[key];
+                if (logicInitializer) {
+                    logicInitializer();
+                    screen.dataset.initialized = 'true';
+                }
+            }
+            
+            // --- Event Listeners Setup ---
+            document.querySelectorAll('.calc-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const screenKey = btn.dataset.screen;
+                    document.getElementById('selectionScreen').style.display = 'none';
+                    if (screens[screenKey]) {
+                        populateScreen(screenKey);
+                        initCalculator(screenKey);
+                        showScreen(screenKey);
+                    }
+                });
+            });
+
+            document.body.addEventListener('click', (e) => {
+                if (e.target.closest('.backButton')) {
+                    document.getElementById('selectionScreen').style.display = 'block';
+                    showScreen('selection');
+                }
+            });
+
+            document.querySelectorAll('.accordion-header').forEach(h => h.addEventListener('click', () => {
+                const c = h.nextElementSibling;
+                h.classList.toggle('active');
+                c.style.maxHeight = c.style.maxHeight ? null : c.scrollHeight + 'px';
+            }));
+
+            // --- Helper: Auto-format input with commas ---
+            function formatInputAsCurrency(inputElement) {
+                if (!inputElement) return;
+                const format = () => {
+                    let value = inputElement.value.replace(/[^0-9]/g, '');
+                    inputElement.value = value ? parseInt(value, 10).toLocaleString() : '';
+                };
+                inputElement.addEventListener('input', format);
+                inputElement.addEventListener('blur', format);
+            }
+            
+            // --- All Calculator Logic ---
+            window.calculatorInitializers = {
+                list: () => {
+                    const numbersInput = document.getElementById('numbersInput');
+                    const res = { s: document.getElementById('sumResult'), a: document.getElementById('averageResult'), c: document.getElementById('countResult'), max: document.getElementById('maxResult'), min: document.getElementById('minResult') };
+                    function calcList() { const text = numbersInput.value; const reset = () => { res.s.textContent = '0'; res.a.textContent = '0'; res.c.textContent = '0'; res.max.textContent = '-'; res.min.textContent = '-'; }; if (!text) { reset(); return; } const nums = text.split(/[\n,、\s]+/).filter(p => p.trim() !== '' && !isNaN(p.replace(/,/g, ''))).map(p => Number(p.replace(/,/g, ''))); if (nums.length === 0) { reset(); return; } const sum = nums.reduce((a, b) => a + b, 0); res.s.textContent = sum.toLocaleString(); res.a.textContent = (sum / nums.length).toLocaleString(undefined, { maximumFractionDigits: 2 }); res.c.textContent = nums.length.toLocaleString(); res.max.textContent = Math.max(...nums).toLocaleString(); res.min.textContent = Math.min(...nums).toLocaleString(); }
+                    numbersInput.addEventListener('input', calcList); document.getElementById('clearButton').addEventListener('click', () => { numbersInput.value = ''; calcList(); });
+                },
+                percent: () => {
+                    const inputs = { v1: document.getElementById('p_val1'), v2: document.getElementById('p_val2'), v3: document.getElementById('p_val3'), v4: document.getElementById('p_val4'), v5: document.getElementById('p_val5'), v6: document.getElementById('p_val6') };
+                    const results = { r1: document.getElementById('p_res1'), r2: document.getElementById('p_res2'), r3: document.getElementById('p_res3') };
+                    function calculate() {
+                        const [v1, v2, v3, v4, v5, v6] = Object.values(inputs).map(el => parseFloat(el.value));
+                        if (!isNaN(v1) && !isNaN(v2) && v2 !== 0) { results.r1.textContent = `${((v1 / v2) * 100).toLocaleString(undefined, {maximumFractionDigits: 2})} %`; } else { results.r1.textContent = '0 %'; }
+                        if (!isNaN(v3) && !isNaN(v4)) { results.r2.textContent = (v3 * (v4 / 100)).toLocaleString(undefined, {maximumFractionDigits: 4}); } else { results.r2.textContent = '0'; }
+                        if (!isNaN(v5) && !isNaN(v6) && v5 !== 0) { const rate = ((v6 - v5) / v5) * 100; results.r3.textContent = `${rate >= 0 ? '+' : ''}${rate.toLocaleString(undefined, {maximumFractionDigits: 2})} %`; } else { results.r3.textContent = '-'; }
+                    }
+                    document.querySelectorAll('.percent-input').forEach(el => el.addEventListener('input', calculate));
+                },
+                discount: () => {
+                    let type = 'percent';
+                    const priceEl = document.getElementById('dc_originalPrice');
+                    const discountEl = document.getElementById('dc_discountValue');
+                    const btnPercent = document.getElementById('dc_type_percent');
+                    const btnAmount = document.getElementById('dc_type_amount');
+                    const finalPriceEl = document.getElementById('dc_finalPrice');
+                    const savedAmountEl = document.getElementById('dc_savedAmount');
+                    
+                    formatInputAsCurrency(priceEl);
+                    
+                    function updateButtons() {
+                        btnPercent.classList.toggle('bg-purple-500', type === 'percent'); btnPercent.classList.toggle('text-white', type === 'percent'); btnPercent.classList.toggle('bg-slate-200', type !== 'percent');
+                        btnAmount.classList.toggle('bg-purple-500', type === 'amount'); btnAmount.classList.toggle('text-white', type === 'amount'); btnAmount.classList.toggle('bg-slate-200', type !== 'amount');
+                    }
+                    function calculate() {
+                        const price = parseFloat(priceEl.value.replace(/,/g, '')) || 0;
+                        const discount = parseFloat(discountEl.value) || 0;
+                        let finalPrice = price, savedAmount = 0;
+                        if (price > 0 && discount > 0) {
+                            if (type === 'percent') {
+                                savedAmount = price * (discount / 100);
+                                finalPrice = price - savedAmount;
+                            } else {
+                                savedAmount = discount;
+                                finalPrice = price - savedAmount;
+                            }
+                        }
+                        finalPriceEl.textContent = Math.round(finalPrice).toLocaleString();
+                        savedAmountEl.textContent = Math.round(savedAmount).toLocaleString();
+                    }
+                    btnPercent.addEventListener('click', () => { type = 'percent'; updateButtons(); calculate(); });
+                    btnAmount.addEventListener('click', () => { type = 'amount'; updateButtons(); calculate(); });
+                    document.querySelectorAll('.discount-input').forEach(el => el.addEventListener('input', calculate));
+                    updateButtons();
+                    calculate();
+                },
+                dutchTreat: () => {
+                    const totalEl = document.getElementById('dt_totalAmount');
+                    const menEl = document.getElementById('dt_menCount');
+                    const womenEl = document.getElementById('dt_womenCount');
+                    const diffEl = document.getElementById('dt_diffAmount');
+                    const malePayEl = document.getElementById('dt_malePayment');
+                    const femalePayEl = document.getElementById('dt_femalePayment');
+                    const collectedEl = document.getElementById('dt_collectedTotal');
+                    const remainderEl = document.getElementById('dt_remainder');
+                    
+                    formatInputAsCurrency(totalEl);
+                    formatInputAsCurrency(diffEl);
+
+                    function calculate() {
+                        const total = parseFloat(totalEl.value.replace(/,/g, '')) || 0;
+                        const men = parseInt(menEl.value) || 0;
+                        const women = parseInt(womenEl.value) || 0;
+                        const diff = parseFloat(diffEl.value.replace(/,/g, '')) || 0;
+                        const totalPeople = men + women;
+
+                        if (totalPeople === 0 || total === 0) {
+                            [malePayEl, femalePayEl, collectedEl, remainderEl].forEach(el => el.textContent = '0');
+                            return;
+                        }
+
+                        let femalePay = (total - men * diff) / totalPeople;
+                        if (femalePay < 0) femalePay = 0;
+                        
+                        const femalePayRounded = Math.ceil(femalePay / 100) * 100;
+                        const malePayRounded = femalePayRounded + diff;
+                        
+                        const collected = (malePayRounded * men) + (femalePayRounded * women);
+                        const remainder = collected - total;
+
+                        malePayEl.textContent = malePayRounded.toLocaleString();
+                        femalePayEl.textContent = femalePayRounded.toLocaleString();
+                        collectedEl.textContent = collected.toLocaleString();
+                        remainderEl.textContent = remainder.toLocaleString();
+                    }
+                    document.querySelectorAll('.dutch-treat-input').forEach(el => el.addEventListener('input', calculate));
+                    calculate();
+                },
+                wage: () => {
+                    const inputs = {
+                        start: document.getElementById('wc_startTime'), end: document.getElementById('wc_endTime'),
+                        break: document.getElementById('wc_breakMinutes'), wage: document.getElementById('wc_hourlyWage'),
+                        lateStart: document.getElementById('wc_lateStart'), lateEnd: document.getElementById('wc_lateEnd'),
+                        lateMult: document.getElementById('wc_lateMultiplier'), overMult: document.getElementById('wc_overtimeMultiplier')
+                    };
+                    const outputs = {
+                        duration: document.getElementById('wc_workDuration'), totalPay: document.getElementById('wc_totalPay'),
+                        regD: document.getElementById('wc_regularDuration'), regP: document.getElementById('wc_regularPay'),
+                        overD: document.getElementById('wc_overtimeDuration'), overP: document.getElementById('wc_overtimePay'),
+                        lateD: document.getElementById('wc_lateDuration'), lateP: document.getElementById('wc_latePay')
+                    };
+
+                    formatInputAsCurrency(inputs.wage);
+
+                    const timeToMin = (timeStr) => { const [h, m] = timeStr.split(':').map(Number); return h * 60 + m; };
+                    const minToHhMm = (min) => `${Math.floor(min/60)}時間 ${min % 60}分`;
+
+                    function calculate() {
+                        const startMin = timeToMin(inputs.start.value);
+                        let endMin = timeToMin(inputs.end.value);
+                        if (endMin < startMin) endMin += 24 * 60; // 日付をまたぐ場合
+
+                        const breakMin = parseInt(inputs.break.value) || 0;
+                        const totalWorkMin = Math.max(0, endMin - startMin - breakMin);
+
+                        const baseWage = parseFloat(inputs.wage.value.replace(/,/g, '')) || 0;
+                        const overtimeMultiplier = parseFloat(inputs.overMult.value) || 1.25;
+                        const lateNightMultiplier = parseFloat(inputs.lateMult.value) || 1.25;
+
+                        const lateStartMin = timeToMin(inputs.lateStart.value);
+                        let lateEndMin = timeToMin(inputs.lateEnd.value);
+                        if (lateEndMin < lateStartMin) lateEndMin += 24 * 60;
+                        
+                        let regularMinutes = 0, overtimeMinutes = 0, lateNightMinutes = 0;
+                        
+                        let effectiveBreak = breakMin;
+
+                        for (let m = startMin; m < endMin; m++) {
+                            if(effectiveBreak > 0) {
+                                effectiveBreak--;
+                                continue;
+                            }
+                            
+                            const workMinutesCounted = (regularMinutes + overtimeMinutes);
+
+                            const isLate = (m % 1440 >= lateStartMin && m % 1440 < lateEndMin % 1440) || (lateStartMin > lateEndMin % 1440 && (m % 1440 >= lateStartMin || m % 1440 < lateEndMin % 1440));
+                            const isOvertime = workMinutesCounted >= 8 * 60;
+                            
+                            if (isOvertime) overtimeMinutes++; else regularMinutes++;
+                            if (isLate) lateNightMinutes++;
+                        }
+                        
+                        const regularPay = (regularMinutes / 60) * baseWage;
+                        const overtimeAddonPay = (overtimeMinutes / 60) * baseWage * (overtimeMultiplier - 1);
+                        const lateNightAddonPay = (lateNightMinutes / 60) * baseWage * (lateNightMultiplier - 1);
+                        const totalPay = regularPay + overtimeAddonPay + lateNightAddonPay;
+
+                        outputs.duration.textContent = minToHhMm(totalWorkMin);
+                        outputs.regD.textContent = minToHhMm(regularMinutes);
+                        outputs.regP.textContent = Math.round(regularPay).toLocaleString();
+                        outputs.overD.textContent = minToHhMm(overtimeMinutes);
+                        outputs.overP.textContent = Math.round(overtimeAddonPay).toLocaleString();
+                        outputs.lateD.textContent = minToHhMm(lateNightMinutes);
+                        outputs.lateP.textContent = Math.round(lateNightAddonPay).toLocaleString();
+                        outputs.totalPay.textContent = Math.round(totalPay).toLocaleString();
+                    }
+                    document.querySelectorAll('.wage-input').forEach(el => el.addEventListener('input', calculate));
+                    calculate();
+                },
+                date: () => {
+                    const startDateEl = document.getElementById('date_start');
+                    const daysEl = document.getElementById('date_days');
+                    const operatorEl = document.getElementById('date_operator');
+                    const resultEl = document.getElementById('date_result');
+                    const periodStartEl = document.getElementById('days_start');
+                    const periodEndEl = document.getElementById('days_end');
+                    const periodResultEl = document.getElementById('days_result');
+                    const today = new Date().toISOString().split('T')[0];
+                    startDateEl.value = today; periodStartEl.value = today; periodEndEl.value = today;
+
+                    function calcDate() {
+                        const date = new Date(startDateEl.value);
+                        if (isNaN(date.getTime())) { resultEl.textContent = '-'; return; }
+                        const days = parseInt(daysEl.value) || 0;
+                        const op = operatorEl.value === 'after' ? 1 : -1;
+                        date.setDate(date.getDate() + (days * op));
+                        resultEl.textContent = date.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
+                    }
+                    function calcPeriod() {
+                        const start = new Date(periodStartEl.value);
+                        const end = new Date(periodEndEl.value);
+                        if (isNaN(start.getTime()) || isNaN(end.getTime()) || end < start) { periodResultEl.textContent = '-'; return; }
+                        const diffTime = end.getTime() - start.getTime();
+                        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                        periodResultEl.textContent = `${diffDays.toLocaleString()} 日間`;
+                    }
+                    document.querySelectorAll('.date-input').forEach(el => el.addEventListener('input', calcDate));
+                    document.querySelectorAll('.days-input').forEach(el => el.addEventListener('input', calcPeriod));
+                    calcDate(); calcPeriod();
+                },
+                time: () => {
+                    const diffStartEl = document.getElementById('time_diff_start');
+                    const diffEndEl = document.getElementById('time_diff_end');
+                    const diffResultEl = document.getElementById('time_diff_result');
+                    const calcBaseEl = document.getElementById('time_calc_base');
+                    const calcHoursEl = document.getElementById('time_calc_hours');
+                    const calcMinutesEl = document.getElementById('time_calc_minutes');
+                    const calcOperatorEl = document.getElementById('time_calc_operator');
+                    const calcResultEl = document.getElementById('time_calc_result');
+                    
+                    const timeToMin = t => { const [h,m] = t.split(':').map(Number); return h * 60 + m; };
+                    const minToHhMm = min => `${Math.floor(min/60)}時間 ${min % 60}分`;
+                    const minToTimeStr = min => {
+                        const h = String(Math.floor(min / 60) % 24).padStart(2, '0');
+                        const m = String(min % 60).padStart(2, '0');
+                        return `${h}:${m}`;
+                    };
+
+                    function calcDiff() {
+                        let start = timeToMin(diffStartEl.value);
+                        let end = timeToMin(diffEndEl.value);
+                        if (end < start) end += 24 * 60; // 日付またぎ
+                        diffResultEl.textContent = minToHhMm(end - start);
+                    }
+                    function calcTime() {
+                        let baseMin = timeToMin(calcBaseEl.value);
+                        const hours = parseInt(calcHoursEl.value) || 0;
+                        const minutes = parseInt(calcMinutesEl.value) || 0;
+                        const totalMin = hours * 60 + minutes;
+                        const op = calcOperatorEl.value === 'after' ? 1 : -1;
+                        const resultMin = (baseMin + totalMin * op + 24 * 60 * 100) % (24 * 60); // 負数にならないように
+                        calcResultEl.textContent = minToTimeStr(resultMin);
+                    }
+                    document.querySelectorAll('.time-diff-input').forEach(el => el.addEventListener('input', calcDiff));
+                    document.querySelectorAll('.time-calc-input').forEach(el => el.addEventListener('input', calcTime));
+                    calcDiff(); calcTime();
+                },
+                kanjiUnit: () => {
+                    const container = document.getElementById('ku_rows_container');
+                    const addBtn = document.getElementById('ku_add_row');
+                    const resetBtn = document.getElementById('ku_reset');
+                    const numResultEl = document.getElementById('ku_result_number');
+                    const kanjiResultEl = document.getElementById('ku_result_kanji');
+
+                    const units = { 'なし': 1, '十': 10, '百': 100, '千': 1e3, '万': 1e4, '億': 1e8, '兆': 1e12, '京': 1e16 };
+                    const unitOptionsHTML = Object.entries(units).map(([kanji, val]) => `<option value="${val}">${kanji}</option>`).join('');
+
+                    const numToKanji = (num) => {
+                        if (num === 0) return "0";
+                        if (!isFinite(num)) return "計算不能";
+                        let str = "";
+                        const u = Object.entries(units).slice().reverse().slice(0, -4);
+                        if (num < 0) { str += "-"; num = Math.abs(num); }
+                        for (const [kanji, val] of u) {
+                            if (Math.abs(num) >= val) {
+                                const intPart = Math.floor(num / val);
+                                str += `${intPart.toLocaleString()}${kanji}`;
+                                num %= val;
+                                if (num !== 0) str += " ";
+                            }
+                        }
+                        if (num !== 0) str += num.toLocaleString();
+                        return str.trim();
+                    };
+
+                    const calculate = () => {
+                        const rows = container.querySelectorAll('.ku-row');
+                        if (rows.length === 0) {
+                            numResultEl.textContent = "0";
+                            kanjiResultEl.textContent = "0";
+                            return;
+                        }
+
+                        const values = Array.from(rows).map(row => ({
+                            val: (parseFloat(row.querySelector('.ku-val').value) || 0) * (parseFloat(row.querySelector('.ku-unit').value) || 1),
+                            op: row.querySelector('.ku-op')?.value || '+'
+                        }));
+
+                        let result = values.length > 0 ? values[0].val : 0;
+                        
+                        for (let i = 1; i < values.length; i++) {
+                            const { val, op } = values[i];
+                            switch (op) {
+                                case '+': result += val; break;
+                                case '-': result -= val; break;
+                                case '*': result *= val; break;
+                                case '/': result = (val !== 0) ? result / val : Infinity; break;
+                            }
+                        }
+
+                        if (!isFinite(result)) {
+                            numResultEl.textContent = "エラー";
+                            kanjiResultEl.textContent = "0による除算はできません";
+                            return;
+                        }
+
+                        numResultEl.textContent = result.toLocaleString(undefined, { maximumFractionDigits: 4 });
+                        kanjiResultEl.textContent = numToKanji(result);
+                    };
+
+                    const createRowElement = (isFirst = false) => {
+                        const row = document.createElement('div');
+                        row.className = 'ku-row flex items-center gap-2';
+                        
+                        const opHtml = isFirst
+                            ? `<div class="w-14"></div>`
+                            : `<select class="ku-input ku-op p-2 rounded border bg-white w-14 text-center font-bold text-base">
+                                 <option value="+" selected>+</option>
+                                 <option value="-">-</option>
+                                 <option value="*">×</option>
+                                 <option value="/">÷</option>
+                               </select>`;
+                        
+                        row.innerHTML = `
+                            ${opHtml}
+                            <input type="number" class="ku-input ku-val text-lg w-full p-2 rounded-l border focus:ring-2 focus:ring-rose-500" value="0">
+                            <select class="ku-input ku-unit p-2 border-y border-r bg-white focus:ring-2 focus:ring-rose-500 w-24 text-sm">${unitOptionsHTML}</select>
+                            <button class="ku-remove-row p-1 text-rose-500 hover:text-rose-700 w-8 flex-shrink-0 text-center ${isFirst ? 'invisible' : ''}">🗑️</button>
+                        `;
+                        
+                        row.querySelectorAll('.ku-input').forEach(el => el.addEventListener('input', calculate));
+                        row.querySelector('.ku-remove-row')?.addEventListener('click', () => {
+                            row.remove();
+                            addBtn.disabled = container.children.length >= 10;
+                            addBtn.textContent = addBtn.disabled ? '最大10行まで' : '+ 行を追加';
+                            calculate();
+                        });
+                        return row;
+                    };
+                    
+                    const resetUI = () => {
+                        container.innerHTML = '';
+                        container.appendChild(createRowElement(true));
+                        container.appendChild(createRowElement(false));
+                        addBtn.disabled = false;
+                        addBtn.textContent = '+ 行を追加';
+                        calculate();
+                    }
+                    
+                    addBtn.addEventListener('click', () => {
+                        if (container.children.length < 10) {
+                            container.appendChild(createRowElement(false));
+                        }
+                        if (container.children.length >= 10) {
+                            addBtn.disabled = true;
+                            addBtn.textContent = '最大10行まで';
+                        }
+                        calculate();
+                    });
+                    
+                    resetBtn.addEventListener('click', resetUI);
+
+                    resetUI();
+                },
+                ratio: () => {
+                    const a1 = document.getElementById('ratio_a'), b1 = document.getElementById('ratio_b'), c1 = document.getElementById('ratio_c'), x1 = document.getElementById('ratio_x_result');
+                    const a2 = document.getElementById('simplify_a'), b2 = document.getElementById('simplify_b'), res2 = document.getElementById('simplify_result');
+                    
+                    const gcd = (a, b) => b ? gcd(b, a % b) : a;
+
+                    function calcX() {
+                        const a = parseFloat(a1.value), b = parseFloat(b1.value), c = parseFloat(c1.value);
+                        if(!isNaN(a) && !isNaN(b) && !isNaN(c) && a !== 0) {
+                            x1.textContent = ((b*c)/a).toLocaleString(undefined, {maximumFractionDigits: 4});
+                        } else {
+                            x1.textContent = 'X';
+                        }
+                    }
+                    function simplify() {
+                        const a = parseInt(a2.value), b = parseInt(b2.value);
+                        if (!isNaN(a) && !isNaN(b) && a !== 0 && b !== 0) {
+                            const common = gcd(a,b);
+                            res2.textContent = `${a/common} : ${b/common}`;
+                        } else {
+                            res2.textContent = '? : ?';
+                        }
+                    }
+                    document.querySelectorAll('.ratio-x-input').forEach(el => el.addEventListener('input', calcX));
+                    document.querySelectorAll('.ratio-simplify-input').forEach(el => el.addEventListener('input', simplify));
+                },
+                tax: () => {
+                    let inputType = 'exclusive';
+                    const amount10El = document.getElementById('tax_10_amount'), amount8El = document.getElementById('tax_8_amount');
+                    const label10El = document.getElementById('tax_10_label'), label8El = document.getElementById('tax_8_label');
+                    const btnEx = document.getElementById('tax_type_exclusive'), btnIn = document.getElementById('tax_type_inclusive');
+                    const exTotalEl = document.getElementById('tax_exclusive_total'), tax10El = document.getElementById('tax_10_total');
+                    const tax8El = document.getElementById('tax_8_total'), taxTotalEl = document.getElementById('tax_amount_total'), inTotalEl = document.getElementById('tax_inclusive_total');
+
+                    formatInputAsCurrency(amount10El); formatInputAsCurrency(amount8El);
+
+                    function updateUI() {
+                        btnEx.classList.toggle('bg-fuchsia-500', inputType === 'exclusive'); btnEx.classList.toggle('text-white', inputType === 'exclusive'); btnEx.classList.toggle('bg-slate-200', inputType !== 'exclusive');
+                        btnIn.classList.toggle('bg-fuchsia-500', inputType === 'inclusive'); btnIn.classList.toggle('text-white', inputType === 'inclusive'); btnIn.classList.toggle('bg-slate-200', inputType !== 'inclusive');
+                        const label = inputType === 'exclusive' ? '(税抜)' : '(税込)';
+                        label10El.textContent = `10%対象金額 ${label}`; label8El.textContent = `8%対象金額 ${label}`;
+                    }
+                    function calculate() {
+                        const amount10 = parseFloat(amount10El.value.replace(/,/g, '')) || 0;
+                        const amount8 = parseFloat(amount8El.value.replace(/,/g, '')) || 0;
+                        let ex10 = 0, ex8 = 0;
+                        if (inputType === 'exclusive') { ex10 = amount10; ex8 = amount8; } 
+                        else { ex10 = amount10 / 1.10; ex8 = amount8 / 1.08; }
+                        const tax10 = ex10 * 0.10, tax8 = ex8 * 0.08;
+                        exTotalEl.textContent = Math.round(ex10 + ex8).toLocaleString();
+                        tax10El.textContent = Math.round(tax10).toLocaleString(); tax8El.textContent = Math.round(tax8).toLocaleString();
+                        taxTotalEl.textContent = Math.round(tax10 + tax8).toLocaleString();
+                        inTotalEl.textContent = Math.round(ex10 + ex8 + tax10 + tax8).toLocaleString();
+                    }
+                    btnEx.addEventListener('click', () => { inputType = 'exclusive'; updateUI(); calculate(); });
+                    btnIn.addEventListener('click', () => { inputType = 'inclusive'; updateUI(); calculate(); });
+                    document.querySelectorAll('.tax-mixed-input').forEach(el => el.addEventListener('input', calculate));
+                    updateUI(); calculate();
+                },
+                loan: () => {
+                    const inputs = { amount: document.getElementById('loan_amount'), rate: document.getElementById('loan_rate'), period: document.getElementById('loan_period') };
+                    const outputs = { month: document.getElementById('loan_monthly_payment'), interest: document.getElementById('loan_total_interest'), total: document.getElementById('loan_total_payment') };
+                    
+                    function calculate() {
+                        const P = (parseFloat(inputs.amount.value) || 0) * 10000;
+                        const annualRate = (parseFloat(inputs.rate.value) || 0) / 100;
+                        const n = (parseInt(inputs.period.value) || 0) * 12;
+                        
+                        if (P <= 0 || annualRate <= 0 || n <= 0) {
+                            Object.values(outputs).forEach(el => el.textContent = '0');
+                            return;
+                        }
+
+                        const r = annualRate / 12;
+                        const monthlyPayment = P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
+                        const totalPayment = monthlyPayment * n;
+                        const totalInterest = totalPayment - P;
+
+                        outputs.month.textContent = Math.round(monthlyPayment).toLocaleString();
+                        outputs.interest.textContent = Math.round(totalInterest).toLocaleString();
+                        outputs.total.textContent = Math.round(totalPayment).toLocaleString();
+                    }
+                    document.querySelectorAll('.loan-input').forEach(el => el.addEventListener('input', calculate));
+                    calculate();
+                },
+                unitConv: () => {
+                    const inputValueEl = document.getElementById('unit_input_value');
+                    const inputUnitEl = document.getElementById('unit_input_unit');
+                    const resultsEl = document.getElementById('unit_results');
+                    const units = {
+                        'データ': { B: 1, KB: 1024, MB: 1024**2, GB: 1024**3, TB: 1024**4 },
+                        '長さ': { m: 1, cm: 0.01, mm: 0.001, km: 1000, in: 0.0254, ft: 0.3048, yd: 0.9144, mi: 1609.34 },
+                        '重さ': { g: 1, kg: 1000, mg: 0.001, t: 1000000, oz: 28.3495, lb: 453.592 },
+                        '面積': { 'm²': 1, 'cm²': 0.0001, 'km²': 1000000, '坪': 3.305785, 'ha': 10000, 'acre': 4046.86 }
+                    };
+                    inputUnitEl.innerHTML = '';
+                    for (const category in units) {
+                        const optgroup = document.createElement('optgroup');
+                        optgroup.label = category;
+                        for(const unit in units[category]) {
+                            const option = document.createElement('option');
+                            option.value = `${category}:${unit}`;
+                            option.textContent = unit;
+                            optgroup.appendChild(option);
+                        }
+                        inputUnitEl.appendChild(optgroup);
+                    }
+                    function convertUnits() {
+                        const value = parseFloat(inputValueEl.value);
+                        const [category, fromUnit] = inputUnitEl.value.split(':');
+                        if(isNaN(value) || !category || !fromUnit) { resultsEl.innerHTML = ''; return; }
+                        const baseValue = value * units[category][fromUnit];
+                        resultsEl.innerHTML = '';
+                        for (const unit in units[category]) {
+                            const convertedValue = baseValue / units[category][unit];
+                            const displayValue = convertedValue < 0.001 && convertedValue > 0 ? convertedValue.toExponential(3) : (Math.round(convertedValue * 10000) / 10000).toLocaleString();
+                            resultsEl.innerHTML += `<div class="bg-lime-50 p-3 rounded-lg"><span class="text-lime-800 font-bold text-2xl">${displayValue}</span><span class="text-lime-600 ml-2">${unit}</span></div>`;
+                        }
+                    }
+                    inputValueEl.addEventListener('input', convertUnits);
+                    inputUnitEl.addEventListener('change', convertUnits);
+                    convertUnits();
+                },
+                charCount: () => {
+                    const inputEl = document.getElementById('char_count_input');
+                    const withSpacesEl = document.getElementById('char_count_with_spaces');
+                    const withoutSpacesEl = document.getElementById('char_count_without_spaces');
+                    const linesEl = document.getElementById('char_count_lines');
+                    const paragraphsEl = document.getElementById('char_count_paragraphs');
+                    function count() {
+                        const text = inputEl.value;
+                        withSpacesEl.textContent = text.length.toLocaleString();
+                        withoutSpacesEl.textContent = text.replace(/[\s\n\r]/g, '').length.toLocaleString();
+                        const lines = text.split('\n');
+                        linesEl.textContent = (text === '' ? 0 : lines.length).toLocaleString();
+                        const paragraphs = text.split(/\n\s*\n+/).filter(p => p.trim() !== '');
+                        paragraphsEl.textContent = (text.trim() === '' ? 0 : paragraphs.length).toLocaleString();
+                    }
+                    inputEl.addEventListener('input', count);
+                    count();
+                },
+                prob: () => {
+                    const [gachaRate, gachaCount, gachaRes] = [document.getElementById('prob_gacha_rate'), document.getElementById('prob_gacha_count'), document.getElementById('prob_gacha_result')];
+                    const [evPrize, evRate, evCost, evRes] = [document.getElementById('prob_ev_prize'), document.getElementById('prob_ev_rate'), document.getElementById('prob_ev_cost'), document.getElementById('prob_ev_result')];
+                    const [binomN, binomK, binomP, binomRes] = [document.getElementById('prob_binom_n'), document.getElementById('prob_binom_k'), document.getElementById('prob_binom_p'), document.getElementById('prob_binom_result')];
+                    
+                    const factorial = n => { if(n > 20) return Infinity; return n <= 1 ? 1 : n * factorial(n - 1); }; // Avoid large number issues
+                    const combinations = (n, k) => (k < 0 || k > n) ? 0 : factorial(n) / (factorial(k) * factorial(n - k));
+
+                    function calcGacha() {
+                        const rate = parseFloat(gachaRate.value) / 100 || 0;
+                        const count = parseInt(gachaCount.value) || 0;
+                        if (rate > 0 && count > 0) {
+                            const prob = 1 - Math.pow(1 - rate, count);
+                            gachaRes.textContent = `${(prob * 100).toFixed(2)} %`;
+                        } else gachaRes.textContent = '-';
+                    }
+                    function calcEV() {
+                        const prize = parseFloat(evPrize.value) || 0;
+                        const rate = parseFloat(evRate.value) / 100 || 0;
+                        const cost = parseFloat(evCost.value) || 0;
+                        const ev = prize * rate - cost;
+                        evRes.textContent = ev.toLocaleString(undefined, {maximumFractionDigits: 2});
+                    }
+                    function calcBinom() {
+                        const n = parseInt(binomN.value);
+                        const k = parseInt(binomK.value);
+                        const p = parseFloat(binomP.value) / 100;
+                        if (!isNaN(n) && !isNaN(k) && !isNaN(p) && n >= k && n > 0) {
+                            const prob = combinations(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k);
+                            if (isFinite(prob)) binomRes.textContent = `${(prob * 100).toFixed(2)} %`;
+                            else binomRes.textContent = '計算不可';
+                        } else binomRes.textContent = '-';
+                    }
+                    document.querySelectorAll('.prob-gacha-input').forEach(el => el.addEventListener('input', calcGacha));
+                    document.querySelectorAll('.prob-ev-input').forEach(el => el.addEventListener('input', calcEV));
+                    document.querySelectorAll('.prob-binom-input').forEach(el => el.addEventListener('input', calcBinom));
+                    calcGacha(); calcEV(); calcBinom();
+                },
+                kakeibo: () => {
+                    let expenses = [];
+                    let kakeiboChart;
+                    const form = document.getElementById('kakeiboForm');
+                    const listEl = document.getElementById('kakeibo_list');
+                    const totalAmountEl = document.getElementById('kakeibo_total_amount');
+                    const filterItemEl = document.getElementById('filter_item');
+                    const filterTagEl = document.getElementById('filter_tag');
+                    const filterStartDateEl = document.getElementById('filter_start_date');
+                    const filterEndDateEl = document.getElementById('filter_end_date');
+                    const editModal = document.getElementById('kakeiboEditModal');
+                    const editForm = document.getElementById('kakeiboEditForm');
+                    const today = new Date().toISOString().split('T')[0];
+                    document.getElementById('kakeibo_date').value = today;
+
+                    const saveData = () => localStorage.setItem('kakeiboData', JSON.stringify(expenses));
+                    const loadData = () => { expenses = JSON.parse(localStorage.getItem('kakeiboData')) || []; };
+
+                    const render = () => {
+                        const filteredExpenses = expenses.filter(ex => {
+                            const startDate = filterStartDateEl.value ? new Date(filterStartDateEl.value) : null;
+                            const endDate = filterEndDateEl.value ? new Date(filterEndDateEl.value) : null;
+                            if (startDate) startDate.setHours(0,0,0,0);
+                            if (endDate) endDate.setHours(23,59,59,999);
+                            const exDate = new Date(ex.date);
+                            if(startDate && exDate < startDate) return false;
+                            if(endDate && exDate > endDate) return false;
+                            if(filterItemEl.value && ex.item !== filterItemEl.value) return false;
+                            if(filterTagEl.value && !ex.tags.includes(filterTagEl.value)) return false;
+                            return true;
+                        });
+
+                        listEl.innerHTML = '';
+                        filteredExpenses.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(ex => {
+                            listEl.innerHTML += `<tr class="border-b hover:bg-slate-50" data-id="${ex.id}">
+                                <td class="py-2 px-2">${ex.date}</td>
+                                <td class="py-2 px-2">${ex.item}</td>
+                                <td class="py-2 px-2 text-right">${ex.amount.toLocaleString()}円</td>
+                                <td class="py-2 px-2">${ex.tags.map(t => `<span class="bg-emerald-100 text-emerald-800 text-xs font-medium mr-1 px-1.5 py-0.5 rounded">${t}</span>`).join(' ')}</td>
+                                <td class="py-2 px-2 text-center">
+                                    <button class="kakeibo-edit-btn p-1 text-slate-500 hover:text-blue-600">✏️</button>
+                                    <button class="kakeibo-delete-btn p-1 text-slate-500 hover:text-red-600">🗑️</button>
+                                </td>
+                            </tr>`;
+                        });
+                        
+                        const total = filteredExpenses.reduce((sum, ex) => sum + ex.amount, 0);
+                        totalAmountEl.textContent = `${total.toLocaleString()} 円`;
+                        updateFilters(expenses);
+                        renderChart(filteredExpenses);
+                    };
+
+                    const updateFilters = (allExpenses) => {
+                        const allItems = [...new Set(allExpenses.map(ex => ex.item))].sort();
+                        const allTags = [...new Set(allExpenses.flatMap(ex => ex.tags))].sort();
+                        const currentItem = filterItemEl.value;
+                        const currentTag = filterTagEl.value;
+                        filterItemEl.innerHTML = '<option value="">すべての項目</option>' + allItems.map(item => `<option value="${item}">${item}</option>`).join('');
+                        filterTagEl.innerHTML = '<option value="">すべてのタグ</option>' + allTags.map(tag => `<option value="${tag}">${tag}</option>`).join('');
+                        filterItemEl.value = currentItem;
+                        filterTagEl.value = currentTag;
+                    };
+                    
+                    const renderChart = (data) => {
+                        const ctx = document.getElementById('kakeiboChart').getContext('2d');
+                        const tagTotals = data.flatMap(ex => ex.tags.length > 0 ? ex.tags.map(tag => ({tag, amount: ex.amount})) : [{tag: 'タグなし', amount: ex.amount}])
+                            .reduce((acc, {tag, amount}) => {
+                                acc[tag] = (acc[tag] || 0) + amount;
+                                return acc;
+                            }, {});
+                        
+                        if (kakeiboChart) kakeiboChart.destroy();
+                        kakeiboChart = new Chart(ctx, {
+                            type: 'doughnut',
+                            data: {
+                                labels: Object.keys(tagTotals),
+                                datasets: [{
+                                    data: Object.values(tagTotals),
+                                    backgroundColor: ['#34d399','#a7f3d0','#6ee7b7','#10b981','#059669', '#047857', '#065f46', '#064e3b'],
+                                }]
+                            },
+                            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                        });
+                    };
+
+                    form.addEventListener('submit', e => {
+                        e.preventDefault();
+                        const newExpense = {
+                            id: Date.now(),
+                            date: document.getElementById('kakeibo_date').value,
+                            item: document.getElementById('kakeibo_item').value.trim(),
+                            amount: parseInt(document.getElementById('kakeibo_amount').value),
+                            tags: document.getElementById('kakeibo_tags').value.trim().split(/\s+/).filter(Boolean)
+                        };
+                        if (!newExpense.date || !newExpense.item || isNaN(newExpense.amount) || newExpense.amount <= 0) {
+                            alert('日付、項目、金額を正しく入力してください。');
+                            return;
+                        }
+                        expenses.push(newExpense);
+                        saveData();
+                        render();
+                        form.reset();
+                        document.getElementById('kakeibo_date').value = today;
+                        document.getElementById('kakeibo_item').focus();
+                    });
+
+                    listEl.addEventListener('click', e => {
+                        const id = parseInt(e.target.closest('tr')?.dataset.id);
+                        if (!id) return;
+                        if(e.target.closest('.kakeibo-delete-btn')) {
+                            if(confirm('この項目を削除しますか？')) {
+                                expenses = expenses.filter(ex => ex.id !== id);
+                                saveData();
+                                render();
+                            }
+                        }
+                        if(e.target.closest('.kakeibo-edit-btn')) {
+                            const ex = expenses.find(ex => ex.id === id);
+                            document.getElementById('kakeibo_edit_id').value = ex.id;
+                            document.getElementById('kakeibo_edit_date').value = ex.date;
+                            document.getElementById('kakeibo_edit_item').value = ex.item;
+                            document.getElementById('kakeibo_edit_amount').value = ex.amount;
+                            document.getElementById('kakeibo_edit_tags').value = ex.tags.join(' ');
+                            editModal.classList.remove('hidden');
+                            editModal.classList.add('flex');
+                        }
+                    });
+
+                    editForm.addEventListener('submit', e => {
+                        e.preventDefault();
+                        const id = parseInt(document.getElementById('kakeibo_edit_id').value);
+                        const index = expenses.findIndex(ex => ex.id === id);
+                        if(index > -1) {
+                            expenses[index] = {
+                                id,
+                                date: document.getElementById('kakeibo_edit_date').value,
+                                item: document.getElementById('kakeibo_edit_item').value,
+                                amount: parseInt(document.getElementById('kakeibo_edit_amount').value),
+                                tags: document.getElementById('kakeibo_edit_tags').value.trim().split(/\s+/).filter(Boolean)
+                            };
+                            saveData();
+                            render();
+                            editModal.classList.add('hidden');
+                        }
+                    });
+                    
+                    document.getElementById('kakeibo_edit_cancel').addEventListener('click', () => editModal.classList.add('hidden'));
+                    document.querySelectorAll('.kakeibo-filter-input').forEach(el => el.addEventListener('input', render));
+                    document.getElementById('filter_clear_btn').addEventListener('click', () => {
+                        filterStartDateEl.value = ''; filterEndDateEl.value = ''; filterItemEl.value = ''; filterTagEl.value = '';
+                        render();
+                    });
+
+                    document.getElementById('kakeibo_export').addEventListener('click', () => {
+                        if (expenses.length === 0) { alert('エクスポートするデータがありません。'); return; }
+                        const dataStr = JSON.stringify(expenses, null, 2);
+                        const blob = new Blob([dataStr], {type: "application/json"});
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `kakeibo_backup_${new Date().toISOString().slice(0,10)}.json`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                    });
+                    document.getElementById('kakeibo_import_btn').addEventListener('click', () => document.getElementById('kakeibo_import_file').click());
+                    document.getElementById('kakeibo_import_file').addEventListener('change', (e) => {
+                        const file = e.target.files[0];
+                        if(!file) return;
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            try {
+                                const importedData = JSON.parse(event.target.result);
+                                if(Array.isArray(importedData) && confirm('現在のデータをインポートしたデータで上書きしますか？この操作は元に戻せません。')) {
+                                    expenses = importedData;
+                                    saveData();
+                                    render();
+                                }
+                            } catch (err) { alert('無効なファイルです。'); }
+                        };
+                        reader.readAsText(file);
+                        e.target.value = '';
+                    });
+
+                    loadData();
+                    render();
+                },
+                grouping: () => {
+                    const membersEl = document.getElementById('grouping_members');
+                    const valueEl = document.getElementById('grouping_value');
+                    const executeBtn = document.getElementById('grouping_execute');
+                    const resultsEl = document.getElementById('grouping_results');
+
+                    executeBtn.addEventListener('click', () => {
+                        const members = membersEl.value.trim().split('\n').filter(Boolean);
+                        if (members.length === 0) {
+                            resultsEl.innerHTML = '<p class="text-red-500">メンバーを1人以上入力してください。</p>';
+                            return;
+                        }
+
+                        for (let i = members.length - 1; i > 0; i--) {
+                            const j = Math.floor(Math.random() * (i + 1));
+                            [members[i], members[j]] = [members[j], members[i]];
+                        }
+
+                        const method = document.querySelector('input[name="grouping_method"]:checked').value;
+                        const value = parseInt(valueEl.value) || 1;
+                        
+                        let groups = [];
+                        if (method === 'group_count') {
+                            const numGroups = Math.max(1, value);
+                            for (let i = 0; i < numGroups; i++) groups.push([]);
+                            members.forEach((member, i) => { groups[i % numGroups].push(member); });
+                        } else {
+                            const membersPerGroup = Math.max(1, value);
+                            for (let i = 0; i < members.length; i += membersPerGroup) {
+                                groups.push(members.slice(i, i + membersPerGroup));
+                            }
+                        }
+                        
+                        resultsEl.innerHTML = '';
+                        groups.forEach((group, i) => {
+                            resultsEl.innerHTML += `<div class="mb-3"><h3 class="font-bold text-cyan-800 border-b border-cyan-200 pb-1">グループ ${i + 1}</h3><ul class="list-disc list-inside text-slate-700 mt-1">${group.map(m => `<li class="ml-4">${m}</li>`).join('')}</ul></div>`;
+                        });
+                    });
+                },
+                recipe: () => {
+                    const beforeEl = document.getElementById('recipe_before');
+                    const afterEl = document.getElementById('recipe_after');
+                    const inputEl = document.getElementById('recipe_input');
+                    const outputEl = document.getElementById('recipe_output');
+                    const panelEl = document.getElementById('recipe_input_panel');
+
+                    const ingredients = {
+                        '肉': ['豚バラ肉 100g', '鶏もも肉 1枚', 'ひき肉 150g', '牛肉 100g'],
+                        '野菜': ['玉ねぎ 1/2個', 'にんじん 1/3本', 'じゃがいも 1個', 'キャベツ 2枚', 'にんにく 1片', 'しょうが 1片'],
+                        '調味料': ['醤油 大さじ1', 'みりん 大さじ1', '酒 大さじ1', '砂糖 大さじ1', '塩 小さじ1/2', 'こしょう 少々', '味噌 大さじ1', 'だし汁 200ml', 'ごま油 小さじ1']
+                    };
+
+                    Object.entries(ingredients).forEach(([category, items]) => {
+                        items.forEach(item => {
+                            const btn = document.createElement('button');
+                            btn.className = "recipe-item-btn px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs";
+                            btn.textContent = item.split(' ')[0];
+                            btn.dataset.text = item;
+                            panelEl.appendChild(btn);
+                        });
+                    });
+
+                    function insertText(text, isUnit = false) {
+                        const start = inputEl.selectionStart;
+                        const end = inputEl.selectionEnd;
+                        const currentVal = inputEl.value;
+                        
+                        let newText = '';
+                        if (isUnit) {
+                            newText = currentVal.substring(0, start) + ` ${text} ` + currentVal.substring(end);
+                            inputEl.selectionStart = inputEl.selectionEnd = start + text.length + 2;
+                        } else {
+                            const prefix = (currentVal === '' || currentVal.endsWith('\n')) ? '' : '\n';
+                            newText = currentVal.substring(0, start) + prefix + text + '\n' + currentVal.substring(end);
+                            inputEl.selectionStart = inputEl.selectionEnd = start + prefix.length + text.length + 1;
+                        }
+                        inputEl.value = newText;
+                        inputEl.focus();
+                        inputEl.dispatchEvent(new Event('input'));
+                    }
+
+                    panelEl.addEventListener('click', e => {
+                        if (e.target.classList.contains('recipe-item-btn')) {
+                            insertText(e.target.dataset.text);
+                        }
+                    });
+
+                    document.querySelectorAll('.recipe-unit-btn').forEach(btn => {
+                        btn.addEventListener('click', () => insertText(btn.textContent, true));
+                    });
+
+                    function convertRecipe() {
+                        const before = parseFloat(beforeEl.value) || 1;
+                        const after = parseFloat(afterEl.value) || 1;
+                        if(before <= 0) return;
+                        const ratio = after / before;
+                        const text = inputEl.value;
+
+                        const lines = text.split('\n');
+                        const newLines = lines.map(line => {
+                             return line.replace(/(\d+)\/(\d+)/g, (match, num, den) => parseFloat(num) / parseFloat(den))
+                                .replace(/([0-9.]+)/g, (match) => {
+                                const num = parseFloat(match);
+                                if (isNaN(num)) return match;
+                                const newNum = num * ratio;
+                                return String(Math.round(newNum * 100) / 100);
+                            });
+                        });
+                        outputEl.value = newLines.join('\n');
+                    }
+                    document.querySelectorAll('.recipe-calc-input').forEach(el => el.addEventListener('input', convertRecipe));
+                    convertRecipe();
+                },
+                health: () => {
+                    const inputs = {
+                        gender: () => document.querySelector('input[name="health_gender"]:checked').value,
+                        age: document.getElementById('health_age'),
+                        height: document.getElementById('health_height'),
+                        weight: document.getElementById('health_weight'),
+                    };
+                    const outputs = {
+                        bmi: document.getElementById('health_bmi_result'),
+                        judge: document.getElementById('health_bmi_judge'),
+                        bmr: document.getElementById('health_bmr_result'),
+                    };
+
+                    function calculate() {
+                        const age = parseInt(inputs.age.value) || 0;
+                        const height = parseFloat(inputs.height.value) || 0;
+                        const weight = parseFloat(inputs.weight.value) || 0;
+                        const gender = inputs.gender();
+
+                        if (height <= 0 || weight <= 0) return;
+
+                        const heightM = height / 100;
+                        const bmi = weight / (heightM * heightM);
+                        outputs.bmi.textContent = bmi.toFixed(1);
+
+                        let judge = "普通体重";
+                        if (bmi < 18.5) judge = "低体重";
+                        else if (bmi >= 25 && bmi < 30) judge = "肥満(1度)";
+                        else if (bmi >= 30 && bmi < 35) judge = "肥満(2度)";
+                        else if (bmi >= 35 && bmi < 40) judge = "肥満(3度)";
+                        else if (bmi >= 40) judge = "肥満(4度)";
+                        outputs.judge.textContent = judge;
+
+                        let bmr = 0;
+                        if (age > 0) {
+                            if (gender === 'male') {
+                                bmr = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age);
+                            } else {
+                                bmr = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age);
+                            }
+                        }
+                        outputs.bmr.textContent = Math.round(bmr).toLocaleString();
+                    }
+                    document.querySelectorAll('.health-input').forEach(el => el.addEventListener('input', calculate));
+                    calculate();
+                },
+                breakeven: () => {
+                    const num = (str) => parseFloat(String(str).replace(/,/g, '')) || 0;
+                    const toLocale = (val) => Math.round(val).toLocaleString();
+                    
+                    const fixedCostEl = document.getElementById('be_fixed_cost');
+                    const variableRateEl = document.getElementById('be_variable_rate');
+                    const priceEl = document.getElementById('be_price');
+                    const costEl = document.getElementById('be_cost');
+                    const targetProfitEl = document.getElementById('be_target_profit');
+                    const breakEvenSalesEl = document.getElementById('be_break_even_sales');
+                    const targetSalesEl = document.getElementById('be_target_sales');
+
+                    formatInputAsCurrency(fixedCostEl);
+                    formatInputAsCurrency(priceEl);
+                    formatInputAsCurrency(costEl);
+                    formatInputAsCurrency(targetProfitEl);
+
+                    function calculate() {
+                        const fixedCost = num(fixedCostEl.value);
+                        let variableRate = num(variableRateEl.value) / 100;
+                        const price = num(priceEl.value);
+                        const cost = num(costEl.value);
+                        const targetProfit = num(targetProfitEl.value);
+
+                        if (price > 0 && cost >= 0 && price > cost) {
+                            variableRate = cost / price;
+                            variableRateEl.value = (variableRate * 100).toFixed(2);
+                        }
+
+                        const profitMargin = 1 - variableRate;
+                        
+                        let breakEvenSales = 0;
+                        if (profitMargin > 0) {
+                            breakEvenSales = fixedCost / profitMargin;
+                        }
+
+                        let targetSales = 0;
+                        if (profitMargin > 0) {
+                            targetSales = (fixedCost + targetProfit) / profitMargin;
+                        }
+                        
+                        breakEvenSalesEl.textContent = toLocale(breakEvenSales);
+                        targetSalesEl.textContent = toLocale(targetSales);
+                    }
+                    document.querySelectorAll('.be-input').forEach(el => el.addEventListener('input', calculate));
+                    calculate();
+                },
+                cycle: () => {
+                    const startDateEl = document.getElementById('cy_start_date');
+                    const typeEl = document.getElementById('cy_type');
+                    const optionsContainer = document.getElementById('cy_options_container');
+                    const countEl = document.getElementById('cy_count');
+                    const resultsEl = document.getElementById('cy_results');
+                    startDateEl.value = new Date().toISOString().split('T')[0];
+
+                    let holidays = {}; 
+
+                    fetch('https://holidays-jp.github.io/api/v1/date.json')
+                        .then(response => response.json())
+                        .then(data => {
+                            holidays = data;
+                            calculate(); 
+                        })
+                        .catch(error => {
+                            console.error('祝日データの取得に失敗しました:', error);
+                            calculate();
+                        });
+                    
+                    const optionsTemplates = {
+                        weekly: `<label class="block mb-2 font-semibold text-slate-600">曜日</label>
+                                <select id="cy_weekly_day" class="cy-input w-full p-2 border rounded-lg bg-white">
+                                    <option value="0">日曜日</option><option value="1">月曜日</option><option value="2">火曜日</option>
+                                    <option value="3">水曜日</option><option value="4">木曜日</option><option value="5">金曜日</option><option value="6">土曜日</option>
+                                </select>`,
+                        monthly_date: `<label class="block mb-2 font-semibold text-slate-600">日付</label>
+                                    <input type="number" id="cy_monthly_date_day" value="15" min="1" max="31" class="cy-input w-full p-2 border rounded-lg">`,
+                        monthly_weekday: `<div class="grid grid-cols-2 gap-4">
+                                            <div><label class="block mb-2 font-semibold text-slate-600">週</label>
+                                                <select id="cy_monthly_weekday_week" class="cy-input w-full p-2 border rounded-lg bg-white">
+                                                    <option value="1">第1</option><option value="2">第2</option><option value="3">第3</option><option value="4">第4</option><option value="5">最終</option>
+                                                </select></div>
+                                            <div><label class="block mb-2 font-semibold text-slate-600">曜日</label>
+                                                <select id="cy_monthly_weekday_day" class="cy-input w-full p-2 border rounded-lg bg-white">
+                                                    <option value="0">日</option><option value="1">月</option><option value="2">火</option>
+                                                    <option value="3">水</option><option value="4">木</option><option value="5">金</option><option value="6">土</option>
+                                                </select></div>
+                                        </div>`,
+                        monthly_business_day: `<label class="block mb-2 font-semibold text-slate-600">何営業日目？</label>
+                                <input type="number" id="cy_business_day_n" value="5" min="1" class="cy-input w-full p-2 border rounded-lg">`,
+                        daily: `<label class="block mb-2 font-semibold text-slate-600">日数</label>
+                                <input type="number" id="cy_daily_days" value="7" min="1" class="cy-input w-full p-2 border rounded-lg">`
+                    };
+
+                    function updateOptions() {
+                        optionsContainer.innerHTML = optionsTemplates[typeEl.value] || '';
+                        optionsContainer.querySelectorAll('.cy-input').forEach(el => el.addEventListener('input', calculate));
+                        calculate();
+                    }
+                    
+                    const isBusinessDay = (date) => {
+                        const day = date.getDay();
+                        const yyyymmdd = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                        return day > 0 && day < 6 && !holidays[yyyymmdd];
+                    };
+
+                    function calculate() {
+                        resultsEl.innerHTML = '';
+                        const startDate = new Date(startDateEl.value + 'T00:00:00');
+                        if (isNaN(startDate.getTime())) return;
+                        
+                        const type = typeEl.value;
+                        const count = parseInt(countEl.value) || 1;
+                        const dates = [];
+                        let cursorDate = new Date(startDate);
+
+                        const formatDate = (d) => d.toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' });
+
+                        while(dates.length < count) {
+                            let nextDate = new Date(cursorDate);
+                            
+                            switch(type) {
+                                case 'weekly':
+                                    const dayOfWeek = parseInt(document.getElementById('cy_weekly_day')?.value || 0);
+                                    const diff = (dayOfWeek - cursorDate.getDay() + 7) % 7;
+                                    nextDate.setDate(cursorDate.getDate() + diff);
+                                    break;
+                                case 'monthly_date':
+                                    const dayOfMonth = parseInt(document.getElementById('cy_monthly_date_day')?.value || 1);
+                                    nextDate = new Date(cursorDate.getFullYear(), cursorDate.getMonth(), dayOfMonth);
+                                    break;
+                                case 'monthly_weekday':
+                                    const week = parseInt(document.getElementById('cy_monthly_weekday_week')?.value || 1);
+                                    const weekDay = parseInt(document.getElementById('cy_monthly_weekday_day')?.value || 0);
+                                    nextDate = new Date(cursorDate.getFullYear(), cursorDate.getMonth(), 1);
+                                    let dayOffset = (weekDay - nextDate.getDay() + 7) % 7;
+                                    if (week === 5) {
+                                        let lastDayOfMonth = new Date(nextDate.getFullYear(), nextDate.getMonth() + 1, 0);
+                                        dayOffset = (lastDayOfMonth.getDay() - weekDay + 7) % 7;
+                                        nextDate = new Date(lastDayOfMonth.setDate(lastDayOfMonth.getDate() - dayOffset));
+                                    } else {
+                                       nextDate = new Date(nextDate.setDate(1 + dayOffset + (week - 1) * 7));
+                                    }
+                                    break;
+                                case 'monthly_business_day':
+                                    const n = parseInt(document.getElementById('cy_business_day_n')?.value || 1);
+                                    let businessDayCount = 0;
+                                    nextDate = new Date(cursorDate.getFullYear(), cursorDate.getMonth(), 1);
+                                    while (businessDayCount < n && nextDate.getMonth() === cursorDate.getMonth()) {
+                                        if (isBusinessDay(nextDate)) businessDayCount++;
+                                        if (businessDayCount < n) nextDate.setDate(nextDate.getDate() + 1);
+                                    }
+                                    break;
+                                case 'daily':
+                                    const interval = parseInt(document.getElementById('cy_daily_days')?.value || 1);
+                                    if (dates.length > 0) {
+                                         nextDate = new Date(dates[dates.length-1]);
+                                         nextDate.setDate(nextDate.getDate() + interval);
+                                    } else {
+                                        nextDate = new Date(cursorDate);
+                                    }
+                                    break;
+                            }
+                            
+                            const lastFoundDate = dates.length > 0 ? dates[dates.length - 1] : new Date(startDate.getTime() - 86400000); // yesterday
+                            if (nextDate > lastFoundDate && nextDate >= startDate) {
+                                dates.push(nextDate);
+                            }
+                            
+                            if (type.startsWith('monthly')) {
+                                cursorDate.setMonth(cursorDate.getMonth() + 1, 1);
+                            } else {
+                                cursorDate = new Date(nextDate);
+                                cursorDate.setDate(cursorDate.getDate() + 1);
+                            }
+                        }
+                        
+                        dates.forEach((d, idx) => {
+                            const li = document.createElement('li');
+                            li.className = "p-2 rounded";
+                            li.innerHTML = `<span class="font-bold text-amber-900">${idx+1}回目:</span> <span class="ml-2">${formatDate(d)}</span>`;
+                            resultsEl.appendChild(li);
+                        });
+                    }
+
+                    typeEl.addEventListener('change', updateOptions);
+                    document.querySelectorAll('.cy-input').forEach(el => el.addEventListener('input', calculate));
+                    updateOptions();
+                }
+            };
+            
+            // --- Initial Screen Display ---
+            showScreen('selection');
+        });
+    </script>
+</body>
+</html>
